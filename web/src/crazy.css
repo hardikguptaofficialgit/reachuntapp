@@ -1,0 +1,201 @@
+/* Ambient + light motion (no cursor spotlight or pulsing glows) */
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+/* —— Ambient orbs —— */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.ambient__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(48px);
+  opacity: 0.12;
+  z-index: 2;
+}
+
+.ambient__orb--a {
+  width: 280px;
+  height: 280px;
+  top: 8%;
+  left: -12%;
+  background: rgba(255, 255, 255, 0.08);
+  animation-duration: 22s;
+}
+
+.ambient__orb--b {
+  width: 200px;
+  height: 200px;
+  bottom: 15%;
+  right: -8%;
+  background: rgba(255, 255, 255, 0.06);
+  animation-delay: -6s;
+  animation-duration: 16s;
+}
+
+.ambient__orb--c {
+  width: 140px;
+  height: 140px;
+  top: 42%;
+  right: 20%;
+  background: rgba(255, 255, 255, 0.05);
+  animation-delay: -11s;
+}
+
+[data-theme="light"] .ambient__orb--a {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="light"] .ambient__orb--b,
+[data-theme="light"] .ambient__orb--c {
+  background: rgba(0, 0, 0, 0.035);
+}
+
+/* —— Mountain background scene —— */
+.ambient__scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.ambient__veil {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      180deg,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--bg) 92%, transparent) 22%,
+      transparent 48%,
+      color-mix(in srgb, var(--bg) 35%, transparent) 72%,
+      var(--bg) 100%
+    );
+  pointer-events: none;
+}
+
+.ambient__mountain {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 0;
+  width: min(118%, 920px);
+  max-width: none;
+  height: auto;
+  max-height: min(52vh, 420px);
+  transform: translateX(-50%);
+  object-fit: contain;
+  object-position: center bottom;
+  opacity: 0.92;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+[data-theme="light"] .ambient__mountain {
+  opacity: 0.88;
+}
+
+[data-theme="light"] .ambient__veil {
+  background:
+    linear-gradient(
+      180deg,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--bg) 88%, transparent) 18%,
+      transparent 42%,
+      color-mix(in srgb, var(--bg) 50%, transparent) 75%,
+      var(--bg) 100%
+    );
+}
+
+/* —— Command busy / armed (border only, no glow pulse) —— */
+.command--hunt .command__field,
+.command--hunt .command__split,
+.command--armed .command__field,
+.command--armed .command__split {
+  border-color: var(--glass-border-hover);
+}
+
+.command__go--launch:not(:disabled) {
+  animation: go-launch 0.42s var(--ease-fluid) both !important;
+}
+
+@keyframes go-launch {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.88);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* —— Toasts (fade only) —— */
+.toast--hit,
+.toast--wild {
+  animation: modal-fade 0.2s ease both;
+}
+
+/* —— Error shake —— */
+.msg-block--shake {
+  animation: err-shake 0.55s var(--ease-fluid) both;
+}
+
+@keyframes err-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.spin-examples {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-shrink: 0;
+}
+
+.spin-examples--on .spin-examples__icon {
+  animation: spin-icon 0.4s linear infinite;
+}
+
+@keyframes spin-icon {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient,
+  .toast--hit,
+  .toast--wild,
+  .msg-block--shake,
+  .command__go--launch {
+    animation: none !important;
+  }
+
+  .ambient {
+    display: none;
+  }
+}

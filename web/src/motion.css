@@ -1,0 +1,121 @@
+/* Fluid entrance motion — top-to-bottom stagger; respects prefers-reduced-motion */
+
+:root {
+  --ease-fluid: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --flow-duration: 0.78s;
+  --flow-stagger: 58ms;
+  --flow-distance: 20px;
+}
+
+.flow-item {
+  opacity: 0;
+  transform: translate3d(0, var(--flow-distance), 0);
+  will-change: transform, opacity, filter;
+}
+
+.flow-line {
+  opacity: 0;
+  transform: translate3d(0, calc(var(--flow-distance) * 0.65), 0);
+}
+
+@keyframes flow-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, var(--flow-distance), 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes flow-in-subtle {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.shell--entered .flow-item {
+  animation: flow-in var(--flow-duration) var(--ease-fluid) forwards;
+  animation-delay: calc(var(--flow-i, 0) * var(--flow-stagger));
+}
+
+.shell--entered .flow-line {
+  animation: flow-in-subtle calc(var(--flow-duration) * 0.92) var(--ease-fluid) forwards;
+  animation-delay: calc(var(--flow-base, 0.12s) + var(--flow-i, 0) * 0.07s);
+}
+
+.shell--entered .flow-item--soft {
+  animation-name: flow-in-subtle;
+  animation-duration: 0.68s;
+}
+
+.shell--entered .tabs__track {
+  animation: flow-in-subtle 0.52s var(--ease-fluid) forwards;
+  animation-delay: calc(var(--flow-i, 0) * var(--flow-stagger));
+}
+
+/* Auth screen stagger */
+.shell--auth.shell--entered .flow-item {
+  animation: flow-in-subtle 0.72s var(--ease-fluid) forwards;
+  animation-delay: calc(var(--flow-i, 0) * 70ms);
+}
+
+.shell--auth.shell--entered .auth-mark.flow-item {
+  animation: flow-in 0.85s var(--ease-fluid) forwards;
+  animation-delay: calc(var(--flow-i, 0) * 70ms);
+}
+
+/* Activity chart bars */
+.shell--entered .activity-chart__bar,
+.shell--entered .activity-chart__empty {
+  transform-origin: bottom center;
+  animation: bar-grow 0.85s var(--ease-fluid) forwards;
+  animation-delay: calc(var(--flow-base, 0.2s) + var(--bar-i, 0) * 0.05s);
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleY(0);
+    opacity: 0.35;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --flow-duration: 0.01ms;
+    --flow-stagger: 0ms;
+    --flow-distance: 0;
+  }
+
+  .flow-item,
+  .flow-line {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .shell--entered .flow-item,
+  .shell--entered .flow-line,
+  .shell--entered .tabs__track,
+  .shell__main > .tab-panel,
+  .shell--auth.shell--entered .flow-item,
+  .shell--auth.shell--entered .auth-mark,
+  .shell--entered .activity-chart__bar,
+  .shell--entered .activity-chart__empty {
+    animation: none !important;
+    filter: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}

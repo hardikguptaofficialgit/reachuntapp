@@ -1,0 +1,15 @@
+/* Safety layer — auth must never be stuck invisible */
+
+.shell--auth,
+.shell--auth * {
+  visibility: visible !important;
+}
+
+.shell--auth .auth-mark {
+  color: var(--text) !important;
+}
+
+/* Fallback if JS never adds shell--entered (no opacity trap on main app) */
+.shell:not(.shell--entered):not(.shell--auth) .flow-item {
+  opacity: 0.001;
+}

@@ -1,0 +1,101 @@
+/* Frosted glass controls — B&W, no color gradients */
+
+.glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+.glass-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  color: var(--text-muted);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1.2;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  transition:
+    background var(--transition),
+    color var(--transition),
+    border-color var(--transition),
+    transform 160ms var(--ease),
+    box-shadow var(--transition);
+}
+
+.glass-btn:hover:not(:disabled) {
+  background: var(--glass-bg-hover);
+  color: var(--text);
+  border-color: var(--glass-border-hover);
+}
+
+.glass-btn:active:not(:disabled) {
+  transform: scale(0.97);
+  box-shadow: var(--glass-shadow-pressed);
+}
+
+.glass-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.glass-btn--sm {
+  padding: 0.42rem 0.85rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.11em;
+}
+
+.glass-btn--icon {
+  width: 2.35rem;
+  height: 2.35rem;
+  padding: 0;
+  border-radius: 50%;
+}
+
+.glass-btn--primary {
+  background: var(--glass-primary-bg);
+  color: var(--glass-primary-fg);
+  border-color: var(--glass-primary-border);
+  letter-spacing: 0.14em;
+}
+
+.glass-btn--primary:hover:not(:disabled) {
+  background: var(--glass-primary-bg-hover);
+  color: var(--glass-primary-fg);
+  border-color: var(--glass-primary-border);
+}
+
+.glass-btn--on {
+  background: var(--glass-primary-bg);
+  color: var(--glass-primary-fg);
+  border-color: transparent;
+  box-shadow: var(--glass-shadow), var(--glass-inset);
+}
+
+.glass-btn--accent {
+  color: var(--text);
+  border-color: var(--glass-border-hover);
+  background: var(--glass-bg-hover);
+}
+
+.glass-surface {
+  background: var(--glass-panel-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(calc(var(--glass-blur) + 4px));
+  -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 4px));
+}
