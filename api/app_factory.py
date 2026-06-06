@@ -57,7 +57,7 @@ async def lifespan(app: FastAPI):
     await store.start_worker()
     service.schedule_prewarm()
     if FAST_LOOKUP:
-        print("Fast lookup mode ON (cache, tight timeouts, API-first email).", flush=True)
+        print("Fast lookup mode ON (cache, tight timeouts, bounded email lookup).", flush=True)
     print(
         f"Job queue: {JOB_WORKER_COUNT} worker(s), LinkedIn pool {LINKEDIN_MAX_CONCURRENT}, "
         f"bulk max {BULK_MAX_QUERIES}, per-user cap {QUEUE_MAX_PER_USER}, db {db.path}.",

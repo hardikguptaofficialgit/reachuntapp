@@ -243,6 +243,8 @@ class MailmeteorAuto:
             try:
                 email, status = await self.find_email(linkedin_url)
                 if status == "rate_limit":
+                    if skip_cooldown:
+                        return "", "rate_limit"
                     wait_s = int(rate_limit_wait_minutes * 60)
                     print(
                         f"\n  Mailmeteor rate limit — waiting {rate_limit_wait_minutes:g} min "

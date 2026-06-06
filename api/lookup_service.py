@@ -7,8 +7,10 @@ import asyncio
 from api.config import (
     LINKEDIN_MAX_CONCURRENT,
     LOOKUP_MAX_SEC,
+    MAILMETEOR_LOOKUP_BUDGET_SEC,
     MAILMETEOR_DELAY_SEC,
     MAILMETEOR_JITTER_SEC,
+    MAILMETEOR_NOT_FOUND_TIMEOUT_SEC,
     RATE_LIMIT_WAIT_MINUTES,
     WEB_LINKEDIN_CLIENT_MODE,
     WEB_MAILMETEOR_PORT,
@@ -68,7 +70,7 @@ class WebLookupService:
                 delay_seconds=MAILMETEOR_DELAY_SEC,
                 jitter_seconds=MAILMETEOR_JITTER_SEC,
             )
-            self._mailmeteor._not_found_timeout_ms = int(self.lookup_timeout * 1000)
+            self._mailmeteor._not_found_timeout_ms = int(MAILMETEOR_NOT_FOUND_TIMEOUT_SEC * 1000)
             await self._mailmeteor.start()
         return self._mailmeteor
 
@@ -80,7 +82,7 @@ class WebLookupService:
             self._mailmeteor = None
 
     async def _try_cache_hit(self, user_id: str, text: str) -> LookupResult | None:
-        if user_id == "local" or not self.db:
+        if not self.db:
             return None
         try:
             pq = parse_person_query(text)
@@ -90,20 +92,37 @@ class WebLookupService:
             text,
             pq.target_role if pq.company_only and not pq.name else None,
         )
-        hit = self.db.get_cached_lookup(user_id, cache_key)
+        hit = None
+        source = "cache_hit"
+        if user_id != "local":
+            hit = self.db.get_cached_lookup(user_id, cache_key)
+        if hit and hit.get("email"):
+            source = "cache_hit"
+        else:
+            hit = self.db.get_shared_cached_lookup(cache_key)
+            source = "shared_cache_hit"
         if not hit or not hit.get("email"):
+            return None
+        validation = await asyncio.to_thread(validate_email, hit["email"])
+        if validation.verdict in {"invalid", "undeliverable"} or validation.role_account:
             return None
         return LookupResult(
             status="completed",
             query=text,
             name=pq.name,
-            domain=pq.domain,
+            domain=hit.get("domain") or pq.domain,
             founder_name=hit.get("founder_name") or pq.name,
             linkedin_url=hit.get("linkedin_url") or "",
             email=hit["email"],
-            email_status="found",
-            message="Instant - loaded from your history.",
-            steps=["parsed", "cache_hit", "email_found"],
+            email_status=public_status("found_validated" if validation.verdict == "verified" else "found_likely"),
+            email_confidence=validation.score,
+            email_validation=validation.public_dict(),
+            message=(
+                "Instant - loaded from your history."
+                if source == "cache_hit"
+                else "Instant - loaded from shared cache."
+            ),
+            steps=["parsed", source, "email_found"],
         )
 
     async def run_query(self, user_id: str, text: str) -> LookupResult:
@@ -251,14 +270,24 @@ class WebLookupService:
         self.schedule_prewarm()
         resolver = await self._email_resolver()
         try:
-            email, email_status = await lookup_email(
-                resolver,
-                result.linkedin_url,
-                rate_limit_wait_minutes=self.rate_limit_wait,
-                api_client=None,
-                name=result.founder_name or result.name,
-                domain=result.domain,
+            email, email_status = await asyncio.wait_for(
+                lookup_email(
+                    resolver,
+                    result.linkedin_url,
+                    rate_limit_wait_minutes=self.rate_limit_wait,
+                    api_client=None,
+                    name=result.founder_name or result.name,
+                    domain=result.domain,
+                ),
+                timeout=MAILMETEOR_LOOKUP_BUDGET_SEC,
             )
+        except TimeoutError:
+            result.status = "completed"
+            result.email = ""
+            result.email_status = public_status("not_found")
+            result.message = "Profile located. Email lookup is taking too long right now."
+            result.steps = steps + ["no_email"]
+            return result
         except Exception as exc:
             result.status = "failed"
             result.message = sanitize_message(str(exc))
@@ -296,7 +325,11 @@ class WebLookupService:
                 steps.append("email_found")
         else:
             result.email_status = public_status(email_status or "not_found")
-            result.message = "Profile located. No work email available right now."
+            result.message = (
+                "Email finder is busy right now. Try again shortly."
+                if email_status == "rate_limit"
+                else "Profile located. No work email available right now."
+            )
             steps.append("no_email")
         result.steps = steps
         return result

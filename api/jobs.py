@@ -234,6 +234,15 @@ class JobStore:
                         linkedin_url=payload.get("profile_url") or "",
                         founder_name=payload.get("display_name") or "",
                     )
+                    if payload.get("email"):
+                        self.db.upsert_shared_lookup_cache(
+                            query,
+                            email=payload.get("email") or "",
+                            status=payload.get("status") or final_status,
+                            linkedin_url=payload.get("profile_url") or "",
+                            founder_name=payload.get("display_name") or "",
+                            domain=payload.get("domain") or "",
+                        )
             except Exception as exc:
                 self._update(
                     job_id,

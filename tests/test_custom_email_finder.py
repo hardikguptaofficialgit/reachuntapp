@@ -2,7 +2,7 @@ import os
 import unittest
 from unittest.mock import patch
 
-from src.custom_email_finder import find_custom_email
+from src.custom_email_finder import _discover_internal_links, find_custom_email
 from src.email_validation import EmailValidation
 
 
@@ -94,6 +94,26 @@ class CustomEmailFinderTests(unittest.IsolatedAsyncioTestCase):
             result = await find_custom_email(name="Jensen Huang", domain="nvidia.com")
         self.assertEqual(result.email, "jensen.huang@nvidia.com")
         self.assertEqual(result.status, "found_custom_smtp")
+
+
+class InternalLinkDiscoveryTests(unittest.TestCase):
+    def test_discovers_relevant_company_links_only(self):
+        html = """
+        <a href="/team">Team</a>
+        <a href="https://nvidia.com/leadership/jensen">Leadership</a>
+        <a href="https://evil.example/team">External team</a>
+        <a href="/pricing">Pricing</a>
+        """
+        links = _discover_internal_links(
+            html,
+            base_url="https://nvidia.com",
+            domain="nvidia.com",
+            limit=5,
+        )
+        self.assertIn("https://nvidia.com/team", links)
+        self.assertIn("https://nvidia.com/leadership/jensen", links)
+        self.assertNotIn("https://evil.example/team", links)
+        self.assertNotIn("https://nvidia.com/pricing", links)
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ import asyncio
 import os
 from dataclasses import dataclass
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import urljoin, urlparse
 
 import httpx
 
@@ -92,6 +92,8 @@ def _queries(name: str, domain: str) -> list[str]:
         f'"{name}" "{domain}" email',
         f'site:{domain} "{name}" "@{domain}"',
         f'site:{domain} "{name}" email',
+        f'site:{domain} "{name}" mailto',
+        f'site:{domain} "{name}" contact',
     ]
 
 
@@ -151,6 +153,55 @@ async def _fetch_text(client: httpx.AsyncClient, url: str) -> str:
         return res.text[:300_000]
     except Exception:
         return ""
+
+
+LINK_KEYWORDS = (
+    "about",
+    "advisor",
+    "author",
+    "board",
+    "company",
+    "contact",
+    "founder",
+    "leadership",
+    "management",
+    "people",
+    "press",
+    "profile",
+    "team",
+)
+
+
+def _discover_internal_links(html: str, *, base_url: str, domain: str, limit: int) -> list[str]:
+    if not html or limit <= 0:
+        return []
+    try:
+        from bs4 import BeautifulSoup
+    except Exception:
+        return []
+
+    wanted = clean_domain(domain)
+    out: list[str] = []
+    soup = BeautifulSoup(html[:500_000], "html.parser")
+    for a in soup.find_all("a"):
+        href = str(a.get("href") or "").strip()
+        if not href or href.startswith(("#", "mailto:", "tel:", "javascript:")):
+            continue
+        text = " ".join(str(a.get_text(" ") or "").lower().split())
+        abs_url = urljoin(base_url, href)
+        safe = _safe_company_url(abs_url, wanted)
+        if not safe:
+            continue
+        parsed = urlparse(safe)
+        haystack = f"{parsed.path.lower()} {text}"
+        if not any(k in haystack for k in LINK_KEYWORDS):
+            continue
+        safe = safe.split("#", 1)[0]
+        if safe not in out:
+            out.append(safe)
+        if len(out) >= limit:
+            break
+    return out
 
 
 def _strict_candidates_from_text(text: str, *, name: str, domain: str, source: str) -> list[EmailCandidate]:
@@ -238,11 +289,26 @@ async def _company_site(name: str, domain: str) -> list[EmailCandidate]:
         "/blog",
         "/press",
     )
+    seed_urls = [f"https://{base}{path}" for path in paths]
     async with httpx.AsyncClient(
         timeout=_timeout(),
         headers={"User-Agent": "ReachuntBot/1.0 (+https://reachhunt.arclabs.page)"},
     ) as client:
-        pages = await asyncio.gather(*[_fetch_text(client, f"https://{base}{path}") for path in paths])
+        pages = await asyncio.gather(*[_fetch_text(client, url) for url in seed_urls])
+        discovered: list[str] = []
+        for url, html in zip(seed_urls, pages):
+            for link in _discover_internal_links(
+                html,
+                base_url=url,
+                domain=base,
+                limit=max(0, _max_pages() - len(discovered)),
+            ):
+                if link not in seed_urls and link not in discovered:
+                    discovered.append(link)
+            if len(discovered) >= _max_pages():
+                break
+        if discovered:
+            pages.extend(await asyncio.gather(*[_fetch_text(client, url) for url in discovered]))
     candidates: list[EmailCandidate] = []
     for text in pages:
         candidates.extend(_strict_candidates_from_text(text, name=name, domain=base, source="company_site"))

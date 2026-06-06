@@ -9,7 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from api.config import DATABASE_PATH
+from api.config import DATABASE_PATH, SHARED_LOOKUP_CACHE_TTL_DAYS
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DB = ROOT / "data" / "webapp.db"
@@ -73,6 +73,28 @@ class Database:
             conn.execute("ALTER TABLE lookup_history ADD COLUMN linkedin_url TEXT DEFAULT ''")
         if "founder_name" not in cols:
             conn.execute("ALTER TABLE lookup_history ADD COLUMN founder_name TEXT DEFAULT ''")
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS shared_lookup_cache (
+                cache_key TEXT PRIMARY KEY,
+                query TEXT NOT NULL,
+                email TEXT NOT NULL DEFAULT '',
+                status TEXT NOT NULL DEFAULT '',
+                linkedin_url TEXT NOT NULL DEFAULT '',
+                founder_name TEXT NOT NULL DEFAULT '',
+                domain TEXT NOT NULL DEFAULT '',
+                hit_count INTEGER NOT NULL DEFAULT 1,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """
+        )
+        conn.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_shared_lookup_cache_updated
+            ON shared_lookup_cache(updated_at DESC)
+            """
+        )
 
         user_cols = {row[1] for row in conn.execute("PRAGMA table_info(users)")}
         if "password_hash" not in user_cols:
@@ -391,6 +413,9 @@ class Database:
     def _norm_query(self, query: str) -> str:
         return query.strip().lower()
 
+    def shared_cache_key(self, query: str) -> str:
+        return " ".join((query or "").strip().lower().split())
+
     def get_cached_lookup(self, user_id: str, query: str) -> dict[str, Any] | None:
         """Latest successful hit (email + profile) for this exact query."""
         with self.session() as conn:
@@ -408,6 +433,79 @@ class Database:
             )
             row = cur.fetchone()
             return dict(row) if row else None
+
+    def get_shared_cached_lookup(self, query: str) -> dict[str, Any] | None:
+        key = self.shared_cache_key(query)
+        if not key:
+            return None
+        with self.session() as conn:
+            cur = conn.execute(
+                """
+                SELECT query, email, status, linkedin_url, founder_name, domain, updated_at
+                FROM shared_lookup_cache
+                WHERE cache_key = ?
+                  AND email IS NOT NULL AND TRIM(email) != ''
+                  AND updated_at >= datetime('now', ?)
+                LIMIT 1
+                """,
+                (key, f"-{SHARED_LOOKUP_CACHE_TTL_DAYS} days"),
+            )
+            row = cur.fetchone()
+            if not row:
+                return None
+            conn.execute(
+                """
+                UPDATE shared_lookup_cache
+                SET hit_count = hit_count + 1, updated_at = ?
+                WHERE cache_key = ?
+                """,
+                (_now(), key),
+            )
+            return dict(row)
+
+    def upsert_shared_lookup_cache(
+        self,
+        query: str,
+        *,
+        email: str,
+        status: str,
+        linkedin_url: str = "",
+        founder_name: str = "",
+        domain: str = "",
+    ) -> None:
+        key = self.shared_cache_key(query)
+        if not key or not email.strip():
+            return
+        now = _now()
+        with self.session() as conn:
+            conn.execute(
+                """
+                INSERT INTO shared_lookup_cache (
+                    cache_key, query, email, status, linkedin_url, founder_name, domain,
+                    hit_count, created_at, updated_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
+                ON CONFLICT(cache_key) DO UPDATE SET
+                    email = excluded.email,
+                    status = excluded.status,
+                    linkedin_url = excluded.linkedin_url,
+                    founder_name = excluded.founder_name,
+                    domain = excluded.domain,
+                    hit_count = shared_lookup_cache.hit_count + 1,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    key,
+                    query.strip(),
+                    email.strip(),
+                    status,
+                    linkedin_url or "",
+                    founder_name or "",
+                    domain or "",
+                    now,
+                    now,
+                ),
+            )
 
     def get_cached_profile(self, user_id: str, query: str) -> dict[str, Any] | None:
         """Latest profile URL for this query (skip LinkedIn search, retry email only)."""

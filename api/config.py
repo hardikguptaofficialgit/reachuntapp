@@ -16,6 +16,10 @@ APP_SECRET = os.environ.get("APP_SECRET", "change-me-in-production")
 REQUIRE_AUTH = os.environ.get("REQUIRE_AUTH", "true").lower() in ("1", "true", "yes")
 JWT_EXPIRE_HOURS = int(os.environ.get("JWT_EXPIRE_HOURS", "168"))
 DATABASE_PATH = os.environ.get("DATABASE_PATH", "").strip()
+SHARED_LOOKUP_CACHE_TTL_DAYS = max(
+    1,
+    int(os.environ.get("SHARED_LOOKUP_CACHE_TTL_DAYS", "180")),
+)
 
 # Abuse protection (per authenticated user)
 RATE_LIMIT_LOOKUPS_PER_MIN = max(1, int(os.environ.get("RATE_LIMIT_LOOKUPS_PER_MIN", "20")))
@@ -24,6 +28,8 @@ RATE_LIMIT_WINDOW_SEC = float(os.environ.get("RATE_LIMIT_WINDOW_SEC", "60"))
 # Browser concurrency (Mailmeteor stays serialized; LinkedIn can run in parallel per user)
 LINKEDIN_MAX_CONCURRENT = max(1, int(os.environ.get("LINKEDIN_MAX_CONCURRENT", "4")))
 LOOKUP_MAX_SEC = float(os.environ.get("LOOKUP_MAX_SEC", "120"))
+CUSTOM_EMAIL_BUDGET_SEC = float(os.environ.get("CUSTOM_EMAIL_BUDGET_SEC", "8"))
+MAILMETEOR_LOOKUP_BUDGET_SEC = float(os.environ.get("MAILMETEOR_LOOKUP_BUDGET_SEC", "45"))
 
 # Cross-origin SPA (Vercel/Pages) + API on another subdomain
 COOKIE_DOMAIN = os.environ.get("COOKIE_DOMAIN", "").strip()
@@ -35,6 +41,9 @@ LINKEDIN_SEARCH_TIMEOUT_MS = int(os.environ.get("LINKEDIN_SEARCH_TIMEOUT_MS", "1
 MAILMETEOR_DELAY_SEC = float(os.environ.get("MAILMETEOR_DELAY_SEC", "1.5" if FAST_LOOKUP else "6"))
 MAILMETEOR_JITTER_SEC = float(os.environ.get("MAILMETEOR_JITTER_SEC", "0.5" if FAST_LOOKUP else "4"))
 LOOKUP_TIMEOUT_SEC = float(os.environ.get("LOOKUP_TIMEOUT_SEC", "12" if FAST_LOOKUP else "18"))
+MAILMETEOR_NOT_FOUND_TIMEOUT_SEC = float(
+    os.environ.get("MAILMETEOR_NOT_FOUND_TIMEOUT_SEC", "18" if FAST_LOOKUP else "28")
+)
 RATE_LIMIT_WAIT_MINUTES = float(os.environ.get("RATE_LIMIT_WAIT_MINUTES", "8"))
 
 # DuckDuckGo (ddgs) - enriches LinkedIn discovery without extra browser tabs

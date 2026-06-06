@@ -16,6 +16,13 @@ def _fast_mode() -> bool:
     return os.environ.get("FAST_LOOKUP", "true").lower() in ("1", "true", "yes")
 
 
+def _custom_email_budget_sec() -> float:
+    try:
+        return max(1.0, min(30.0, float(os.environ.get("CUSTOM_EMAIL_BUDGET_SEC", "8"))))
+    except ValueError:
+        return 8.0
+
+
 async def lookup_email(
     finder: "MailmeteorAuto",
     linkedin_url: str,
@@ -26,12 +33,18 @@ async def lookup_email(
     domain: str = "",
     extra_delay: float = 0.0,
 ) -> tuple[str, str]:
-    custom = await find_custom_email(
-        name=name,
-        domain=domain,
-        linkedin_url=linkedin_url,
-    )
-    if custom.email:
+    try:
+        custom = await asyncio.wait_for(
+            find_custom_email(
+                name=name,
+                domain=domain,
+                linkedin_url=linkedin_url,
+            ),
+            timeout=_custom_email_budget_sec(),
+        )
+    except TimeoutError:
+        custom = None
+    if custom and custom.email:
         return custom.email, custom.status
 
     email, status = await finder.find_email_with_delay(

@@ -7,6 +7,7 @@ import re
 _STEP_PUBLIC = {
     "parsed": ("parsed", "Request understood"),
     "cache_hit": ("instant", "Loaded from history"),
+    "shared_cache_hit": ("instant", "Loaded from shared cache"),
     "profile_cache": ("profile_cached", "Using saved profile"),
     "linkedin_search": ("discovering", "Discovering professional profile"),
     "linkedin_found": ("profile_matched", "Profile matched"),
