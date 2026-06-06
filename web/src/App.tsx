@@ -377,7 +377,7 @@ export default function App() {
                 defaultQuery={
                   buildContext
                     ? buildContext.founderName
-                      ? `${buildContext.founderName} — ${buildContext.domain}`
+                      ? `${buildContext.founderName} - ${buildContext.domain}`
                       : buildContext.domain
                     : query
                 }
@@ -396,7 +396,7 @@ export default function App() {
               <header className="tab-panel__head">
                 <h2 className="tab-panel__title">Bulk</h2>
                 <p className="tab-panel__desc">
-                  Queue up to 100 lookups — server runs them in order, cache hits fly through.
+                  Queue up to 100 lookups - server runs them in order, cache hits fly through.
                 </p>
               </header>
               <BulkPanel

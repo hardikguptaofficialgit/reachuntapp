@@ -82,9 +82,7 @@ def _company_only_query(
 def parse_person_query(text: str) -> PersonQuery:
     raw = (text or "").strip().strip("\"'“”‘’")
     if not raw:
-        raise ValueError(
-            "Enter a person (Name - company.com) or a company name (e.g. Notion or stripe.com)"
-        )
+        raise ValueError("Enter full name - company domain.")
 
     for sep in NAME_SEPARATORS:
         if sep in raw:
@@ -98,6 +96,19 @@ def parse_person_query(text: str) -> PersonQuery:
                     raw=raw,
                     query_kind="person",
                 )
+            company_label = right.strip()
+            if meaningful_person_name(name) and company_label:
+                try:
+                    inferred_domain = guess_primary_domain(company_label)
+                except ValueError:
+                    inferred_domain = ""
+                if inferred_domain and DOMAIN_RE.match(inferred_domain):
+                    return PersonQuery(
+                        name=name,
+                        domain=inferred_domain,
+                        raw=raw,
+                        query_kind="person",
+                    )
 
     if "@" in raw:
         name, domain = raw.split("@", 1)
@@ -134,16 +145,11 @@ def parse_person_query(text: str) -> PersonQuery:
         )
 
     if looks_like_person_name(raw):
-        raise ValueError(
-            "Add their company — e.g. Arushi Gupta — company.com"
-        )
+        raise ValueError("Add their company domain, like Arushi Gupta - notion.so.")
 
     kind = classify_company_input(raw)
     if kind is None:
-        raise ValueError(
-            "Enter a full company name (e.g. Notion, Stripe) or a domain (stripe.com), "
-            "or a person as Name — company.com"
-        )
+        raise ValueError("Use full name - company domain, or enter a company domain.")
 
     domain = guess_primary_domain(raw)
     label = raw.strip() if kind == "company_name" else company_label_from_domain(domain)

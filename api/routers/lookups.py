@@ -10,6 +10,7 @@ from api.config import (
     JOB_STATUS_BATCH_MAX,
     JOB_WORKER_COUNT,
     QUEUE_MAX_PER_USER,
+    WEB_LINKEDIN_CLIENT_MODE,
 )
 from api.deps import get_linkedin, get_store
 from api.job_utils import job_payload
@@ -59,11 +60,11 @@ async def create_bulk_lookup(
     linkedin: LinkedInSessionManager = Depends(get_linkedin),
 ):
     await lookup_limiter.check(user["id"], label="lookups")
-    if not user.get("is_dev"):
+    if not user.get("is_dev") and not WEB_LINKEDIN_CLIENT_MODE:
         if not await linkedin.is_connected(user["id"]):
             raise HTTPException(
                 status_code=403,
-                detail="Connect your professional network to enable lookups.",
+                detail="Discovery is getting ready. Try again in a moment.",
             )
 
     cleaned = []
@@ -107,11 +108,11 @@ async def create_lookup(
     linkedin: LinkedInSessionManager = Depends(get_linkedin),
 ):
     await lookup_limiter.check(user["id"], label="lookups")
-    if not user.get("is_dev"):
+    if not user.get("is_dev") and not WEB_LINKEDIN_CLIENT_MODE:
         if not await linkedin.is_connected(user["id"]):
             raise HTTPException(
                 status_code=403,
-                detail="Connect your professional network to enable lookups.",
+                detail="Discovery is getting ready. Try again in a moment.",
             )
 
     try:

@@ -1,4 +1,4 @@
-"""Web lookups — Mailmeteor serialized; LinkedIn parallel up to LINKEDIN_MAX_CONCURRENT."""
+"""Web lookups - Mailmeteor serialized; LinkedIn parallel up to LINKEDIN_MAX_CONCURRENT."""
 
 from __future__ import annotations
 
@@ -103,7 +103,7 @@ class WebLookupService:
             linkedin_url=hit.get("linkedin_url") or "",
             email=hit["email"],
             email_status="found",
-            message="Instant — loaded from your history.",
+            message="Instant - loaded from your history.",
             steps=["parsed", "cache_hit", "email_found"],
         )
 
@@ -155,8 +155,8 @@ class WebLookupService:
         steps.append("parsed")
 
         if user_id != "local":
-            if WEB_LINKEDIN_CLIENT_MODE and self.db:
-                connected = bool(self.db.get_integration(user_id).get("linkedin_connected"))
+            if WEB_LINKEDIN_CLIENT_MODE:
+                connected = True
             elif user_id in getattr(self.linkedin_manager, "_verified", set()):
                 connected = True
             else:
@@ -165,7 +165,7 @@ class WebLookupService:
                 return LookupResult(
                     status="failed",
                     query=text,
-                    message="Connect your professional network before running a lookup.",
+                    message="Discovery is not ready yet.",
                     steps=["parse_error"],
                 )
 

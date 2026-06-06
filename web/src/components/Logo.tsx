@@ -4,7 +4,8 @@ type Props = {
   "aria-label"?: string;
 };
 
-const LOGO_SRC = "/logo.png";
+const DARK_LOGO_SRC = "/logo.png";
+const LIGHT_LOGO_SRC = "/lightmodelogo.png";
 
 export function Logo({
   size = 32,
@@ -18,7 +19,18 @@ export function Logo({
       role="img"
       aria-label={ariaLabel}
     >
-      <img src={LOGO_SRC} alt="" className="logo-mark__img" decoding="async" />
+      <img
+        src={DARK_LOGO_SRC}
+        alt=""
+        className="logo-mark__img logo-mark__img--dark"
+        decoding="async"
+      />
+      <img
+        src={LIGHT_LOGO_SRC}
+        alt=""
+        className="logo-mark__img logo-mark__img--light"
+        decoding="async"
+      />
     </span>
   );
 }

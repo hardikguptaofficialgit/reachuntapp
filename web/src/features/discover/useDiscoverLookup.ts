@@ -42,7 +42,7 @@ export function useDiscoverLookup(args: Args) {
       const q = (text ?? buildLookupQuery(args.mode, args.query, args.name, args.domain)).trim();
       if (!q) return;
       if (!args.canLookup) {
-        args.onError("Connect your network first.");
+        args.onError("Discovery is getting ready. Try again in a moment.");
         args.onTabDiscover();
         return;
       }

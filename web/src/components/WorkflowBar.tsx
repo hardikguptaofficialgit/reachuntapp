@@ -6,7 +6,7 @@ type Props = {
 };
 
 export function WorkflowBar({ busy, canLookup, tab, lastQuery }: Props) {
-  const needsNet = tab === "discover" || tab === "bulk";
+  const needsDiscovery = tab === "discover" || tab === "bulk";
 
   if (busy) {
     return (
@@ -14,16 +14,16 @@ export function WorkflowBar({ busy, canLookup, tab, lastQuery }: Props) {
         <span className="workflow-bar__pulse" aria-hidden />
         <span>
           Lookup running
-          {lastQuery ? ` · ${shortQuery(lastQuery)}` : ""}
+          {lastQuery ? ` - ${shortQuery(lastQuery)}` : ""}
         </span>
       </div>
     );
   }
 
-  if (needsNet && !canLookup) {
+  if (needsDiscovery && !canLookup) {
     return (
       <div className="workflow-bar workflow-bar--warn" role="status">
-        Connect your network above to run lookups
+        Discovery is getting ready
       </div>
     );
   }
@@ -34,5 +34,5 @@ export function WorkflowBar({ busy, canLookup, tab, lastQuery }: Props) {
 function shortQuery(q: string) {
   const s = q.trim();
   if (s.length <= 28) return s;
-  return `${s.slice(0, 26)}…`;
+  return `${s.slice(0, 26)}...`;
 }

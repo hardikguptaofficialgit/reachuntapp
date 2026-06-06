@@ -116,7 +116,7 @@ export function parseQueryLocal(text: string): ParseResult {
   if (!raw) {
     return {
       ok: false,
-      error: "Enter a person (Name - company.com) or a company (e.g. Notion or stripe.com)",
+      error: "Enter full name - company domain.",
     };
   }
 
@@ -133,6 +133,20 @@ export function parseQueryLocal(text: string): ParseResult {
         company_only: false,
         query_kind: "person",
       };
+    }
+    const companyLabel = raw.slice(idx + sep.length).trim();
+    if (meaningfulPersonName(name) && companyLabel) {
+      try {
+        return {
+          ok: true,
+          name,
+          domain: guessPrimaryDomain(companyLabel),
+          company_only: false,
+          query_kind: "person",
+        };
+      } catch {
+        // Keep parsing so the final error message stays simple.
+      }
     }
   }
 
@@ -175,7 +189,7 @@ export function parseQueryLocal(text: string): ParseResult {
   if (looksLikePersonName(raw)) {
     return {
       ok: false,
-      error: "Add their company — e.g. Arushi Gupta — company.com",
+      error: "Add their company domain, like Arushi Gupta - notion.so.",
     };
   }
 
@@ -183,8 +197,7 @@ export function parseQueryLocal(text: string): ParseResult {
   if (!kind) {
     return {
       ok: false,
-      error:
-        "Enter a full company name (e.g. Notion, Stripe) or a domain (stripe.com), or a person as Name — company.com",
+      error: "Use full name - company domain, or enter a company domain.",
     };
   }
 

@@ -16,6 +16,13 @@ class TestQueryParseGolden(unittest.TestCase):
         self.assertFalse(pq.company_only)
         self.assertEqual(query_kind_for(pq), QueryKind.PERSON)
 
+    def test_person_split_company_name_infers_domain(self):
+        pq = parse_person_query("Kanish Gupta - ZSCALER")
+        self.assertEqual(pq.name, "Kanish Gupta")
+        self.assertEqual(pq.domain, "zscaler.com")
+        self.assertFalse(pq.company_only)
+        self.assertEqual(query_kind_for(pq), QueryKind.PERSON)
+
     def test_company_domain(self):
         pq = parse_person_query("stripe.com")
         self.assertEqual(pq.domain, "stripe.com")

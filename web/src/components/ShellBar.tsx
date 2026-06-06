@@ -30,16 +30,16 @@ export function ShellBar({
           onClick={onToggleFocus}
           title="Focus mode"
         >
-          ◫
+          Focus
         </button>
         <button type="button" className="glass-btn glass-btn--sm icon-btn--text" onClick={onOpenPalette}>
-          ⌘K
+          Ctrl K
         </button>
         <button
           type="button"
           className="bar__account"
           onClick={onOpenAccount}
-          title={`${label} — Account settings`}
+          title={`${label} - Account settings`}
           aria-label="Account settings"
         >
           <UserAvatar style={account.avatar_style} seed={account.avatar_seed} size={32} />

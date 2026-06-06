@@ -1,6 +1,4 @@
 import { useRef, useState, type FormEvent } from "react";
-import { useRotatingText } from "../hooks/useRotatingText";
-import { PLACEHOLDER_LINES } from "../utils/smartCopy";
 import { SpinExamples } from "./SpinExamples";
 import type { ParseResult } from "../api";
 import { useParsePreview } from "../hooks/useParsePreview";
@@ -8,11 +6,9 @@ import { useDuplicateCheck } from "../hooks/useDuplicateCheck";
 import { BrandIcon } from "./BrandIcon";
 
 const EXAMPLES: { query: string; domain?: string }[] = [
-  { query: "Hardik Gupta — linkitapp.in", domain: "linkitapp.in" },
-  { query: "linkitapp.in", domain: "linkitapp.in" },
-  { query: "Stripe", domain: "stripe.com" },
-  { query: "Notion", domain: "notion.so" },
-  { query: "notion.so", domain: "notion.so" },
+  { query: "Hardik Gupta - linkitapp.in", domain: "linkitapp.in" },
+  { query: "Dylan Field - figma.com", domain: "figma.com" },
+  { query: "Sam Altman - openai.com", domain: "openai.com" },
 ];
 
 export type SearchMode = "quick" | "split";
@@ -55,7 +51,6 @@ export function SearchForm({
   const { preview, previewQuery } = useParsePreview(mode, value, name, domain);
   const duplicate = useDuplicateCheck(previewQuery);
   const [goLaunch, setGoLaunch] = useState(false);
-  const placeholder = useRotatingText(PLACEHOLDER_LINES, 3400, mode === "quick" && !busy);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -92,7 +87,7 @@ export function SearchForm({
         >
           Split
         </button>
-        <span className="command__keys">⌘↵</span>
+        <span className="command__keys">Enter</span>
       </div>
 
       {mode === "quick" ? (
@@ -114,7 +109,7 @@ export function SearchForm({
                 onMultiPaste(pasted);
               }
             }}
-            placeholder={placeholder}
+            placeholder="Full name - company domain"
             autoComplete="off"
             spellCheck={false}
             disabled={busy || disabled}
@@ -158,7 +153,7 @@ export function SearchForm({
             disabled={busy || disabled}
             aria-label="Full name"
           />
-          <span className="command__dash">—</span>
+          <span className="command__dash">-</span>
           <input
             className="command__input command__input--split"
             type="text"
@@ -201,7 +196,7 @@ export function SearchForm({
             }}
           >
             {ex.domain ? <BrandIcon domain={ex.domain} size={14} /> : null}
-            <span>{ex.query.split(" — ")[0]}</span>
+            <span>{ex.query}</span>
           </button>
         ))}
       </div>

@@ -39,7 +39,7 @@ export function AuthScreen() {
   }, []);
 
   const displayError =
-    authError ?? (apiDown ? "API not running — start with .\\run-api.ps1 in the project folder." : null);
+    authError ?? (apiDown ? "API not running - start with .\\run-api.ps1 in the project folder." : null);
 
   return (
     <>
@@ -54,7 +54,7 @@ export function AuthScreen() {
           Reachunt
         </h1>
         <p className="auth-tag flow-item" style={flow(2)}>
-          Find anyone&apos;s work email — by name or by role at a company. Sign in with Linkit.
+          Find anyone&apos;s work email by name and company. Sign in with Linkit.
         </p>
 
         {displayError && (
@@ -81,7 +81,7 @@ export function AuthScreen() {
       objectFit: "contain",
     }}
   />
-  {busy ? "Opening Linkit…" : "Continue with Linkit"}
+  {busy ? "Opening Linkit..." : "Continue with Linkit"}
 </button>
 
         <p className="auth-linkit-hint flow-item" style={flow(displayError ? 5 : 4)}>
