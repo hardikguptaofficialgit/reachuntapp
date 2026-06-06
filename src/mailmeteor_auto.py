@@ -14,38 +14,17 @@ import httpx
 from playwright.async_api import Browser, Page, async_playwright
 from playwright.async_api import Error as PlaywrightError
 
+from src.browser_paths import find_browser_exe, linux_server_flags
+
 EMAIL_RE = re.compile(r"\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b")
 TOOL_URL = "https://mailmeteor.com/tools/linkedin-email-finder"
 ERROR_SNIPPET = "oops, it didn't work"
-
-BROWSER_PATHS = {
-    "brave": (
-        Path(r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"),
-        Path(r"C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe"),
-        Path.home() / "AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe",
-    ),
-    "chrome": (
-        Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe"),
-        Path(r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"),
-    ),
-}
 
 
 def profile_dir(browser: str, profile_name: str | None = None) -> Path:
     base = Path(__file__).resolve().parent.parent / "data"
     folder = profile_name or f"{browser}-cdp-profile"
     return base / folder
-
-
-def find_browser_exe(browser: str) -> Path:
-    browser = browser.lower()
-    if browser not in BROWSER_PATHS:
-        raise ValueError(f"Unknown browser: {browser}. Use 'brave' or 'chrome'.")
-    for p in BROWSER_PATHS[browser]:
-        if p.exists():
-            return p
-    label = "Brave" if browser == "brave" else "Google Chrome"
-    raise RuntimeError(f"{label} not found. Install it or use --browser chrome / --manual")
 
 
 def cdp_ready(port: int) -> bool:
@@ -72,6 +51,7 @@ def launch_browser_cdp(
             "--no-first-run",
             "--no-default-browser-check",
             "--disable-blink-features=AutomationControlled",
+            *linux_server_flags(),
             TOOL_URL,
         ],
         stdout=subprocess.DEVNULL,

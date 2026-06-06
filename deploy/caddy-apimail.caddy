@@ -1,0 +1,13 @@
+# Add this block to your EXISTING Caddy config (do not install nginx).
+# Caddy already owns ports 80/443 on this droplet.
+
+apimail.arclabs.page {
+	reverse_proxy 127.0.0.1:8000 {
+		# Job SSE stream — avoid buffering
+		flush_interval -1
+		transport http {
+			read_timeout 5m
+			write_timeout 5m
+		}
+	}
+}

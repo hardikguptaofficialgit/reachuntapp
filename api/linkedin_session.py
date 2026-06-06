@@ -7,6 +7,7 @@ import hashlib
 from dataclasses import dataclass
 from typing import Literal
 
+from api.config import WEB_BROWSER
 from src.browser_cdp import CdpBrowser, cdp_ready
 from src.linkedin_auth import page_looks_authed, verify_linkedin_session
 
@@ -43,7 +44,7 @@ class LinkedInSessionManager:
             if user_id in self._sessions:
                 return self._sessions[user_id]
             browser = CdpBrowser(
-                browser="brave",
+                browser=WEB_BROWSER,
                 profile_name=self._profile_name(user_id),
                 port=self._port_for(user_id),
             )
@@ -62,7 +63,7 @@ class LinkedInSessionManager:
             if user_id in self._sessions:
                 return self._sessions[user_id]
             browser = CdpBrowser(
-                browser="brave",
+                browser=WEB_BROWSER,
                 profile_name=self._profile_name(user_id),
                 port=port,
             )

@@ -1,0 +1,38 @@
+# Auto-deploy API to DigitalOcean droplet on push to main (like Vercel for the backend).
+# Web UI stays on Cloudflare Pages (separate Pages Git integration).
+
+name: Deploy API to Droplet
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - "api/**"
+      - "src/**"
+      - "deploy/**"
+      - "requirements.txt"
+      - ".github/workflows/deploy-api-droplet.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -e
+            APP_DIR="/home/deploy/anyone-email"
+            cd "$APP_DIR"
+            git fetch origin
+            if git show-ref --verify --quiet refs/heads/main; then
+              git checkout main && git pull --ff-only origin main
+            else
+              git checkout master && git pull --ff-only origin master
+            fi
+            bash deploy/post-deploy.sh

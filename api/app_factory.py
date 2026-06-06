@@ -24,6 +24,7 @@ from api.config import (
     LOOKUP_TIMEOUT_SEC,
     QUEUE_MAX_PER_USER,
     RATE_LIMIT_WAIT_MINUTES,
+    WEB_BROWSER,
     WEB_MAILMETEOR_PORT,
 )
 from api.db import Database
@@ -47,6 +48,7 @@ async def lifespan(app: FastAPI):
     service = WebLookupService(
         linkedin,
         db,
+        browser=WEB_BROWSER,
         mailmeteor_port=WEB_MAILMETEOR_PORT,
         rate_limit_wait=RATE_LIMIT_WAIT_MINUTES,
         lookup_timeout=LOOKUP_TIMEOUT_SEC,

@@ -7,6 +7,10 @@ import os
 # Batch pipeline keeps 9223 (LinkedIn) and 9222 (Mailmeteor) — do not use here.
 WEB_MAILMETEOR_PORT = int(os.environ.get("WEB_MAILMETEOR_PORT", "9224"))
 WEB_LINKEDIN_PORT_BASE = int(os.environ.get("WEB_LINKEDIN_PORT_BASE", "9300"))
+WEB_BROWSER = os.environ.get(
+    "WEB_BROWSER",
+    "brave" if os.name == "nt" else "chrome",
+).strip().lower()
 
 APP_SECRET = os.environ.get("APP_SECRET", "change-me-in-production")
 REQUIRE_AUTH = os.environ.get("REQUIRE_AUTH", "true").lower() in ("1", "true", "yes")

@@ -1,0 +1,17 @@
+[Unit]
+Description=Anyone Email API (apimail.arclabs.page)
+After=network.target
+
+[Service]
+Type=simple
+User=deploy
+Group=deploy
+WorkingDirectory=/home/deploy/anyone-email
+EnvironmentFile=/home/deploy/anyone-email/.env
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/xvfb-run -a --server-args="-screen 0 1280x720x24" /home/deploy/anyone-email/.venv/bin/python -m api.server --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

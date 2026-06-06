@@ -13,29 +13,10 @@ from typing import TypeVar
 import httpx
 from playwright.async_api import Browser, BrowserContext, Page, async_playwright
 
+from src.browser_paths import find_browser_exe, linux_server_flags
 from src.playwright_loop import run_on_playwright_loop, use_playwright_loop
 
 T = TypeVar("T")
-
-BROWSER_PATHS = {
-    "brave": (
-        Path(r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe"),
-        Path(r"C:\Program Files (x86)\BraveSoftware\Brave-Browser\Application\brave.exe"),
-        Path.home() / "AppData/Local/BraveSoftware/Brave-Browser/Application/brave.exe",
-    ),
-    "chrome": (
-        Path(r"C:\Program Files\Google\Chrome\Application\chrome.exe"),
-        Path(r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"),
-    ),
-}
-
-
-def find_browser_exe(browser: str) -> Path:
-    browser = browser.lower()
-    for p in BROWSER_PATHS.get(browser, ()):
-        if p.exists():
-            return p
-    raise RuntimeError(f"{browser.title()} not found")
 
 
 def profile_dir(name: str) -> Path:
@@ -61,6 +42,7 @@ def launch_browser(browser: str, profile_name: str, port: int, start_url: str) -
             "--no-first-run",
             "--no-default-browser-check",
             "--disable-blink-features=AutomationControlled",
+            *linux_server_flags(),
             start_url,
         ],
         stdout=subprocess.DEVNULL,
