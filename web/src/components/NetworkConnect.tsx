@@ -19,6 +19,7 @@ export function NetworkConnect({ onReadyChange }: Props) {
   const [status, setStatus] = useState<NetworkStatus | null>(null);
   const [polling, setPolling] = useState(false);
   const [busy, setBusy] = useState(false);
+  const clientMode = status?.client_mode ?? false;
 
   const apply = useCallback(
     (s: NetworkStatus) => {
@@ -31,7 +32,7 @@ export function NetworkConnect({ onReadyChange }: Props) {
   const load = useCallback(async () => {
     const s = await fetchNetwork();
     apply(s);
-    if (s.state === "connecting") setPolling(true);
+    if (!s.client_mode && s.state === "connecting") setPolling(true);
   }, [apply]);
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export function NetworkConnect({ onReadyChange }: Props) {
   }, [load]);
 
   useEffect(() => {
-    if (!polling) return;
+    if (!polling || clientMode) return;
     const tick = async () => {
       const s = await refreshNetwork();
       apply(s);
@@ -56,7 +57,7 @@ export function NetworkConnect({ onReadyChange }: Props) {
     void tick();
     const id = window.setInterval(() => void tick(), 1500);
     return () => window.clearInterval(id);
-  }, [polling, apply]);
+  }, [polling, clientMode, apply]);
 
   const state: NetworkState = status?.state ?? "disconnected";
 
@@ -73,9 +74,11 @@ export function NetworkConnect({ onReadyChange }: Props) {
 
   const short =
     state === "connecting"
-      ? polling
-        ? "Checking sign-in…"
-        : "Sign in in the Brave window opened by Connect"
+      ? clientMode
+        ? "Sign in to LinkedIn in your browser, then confirm below"
+        : polling
+          ? "Checking sign-in…"
+          : "Sign in in the browser window opened by Connect"
       : "Connect to unlock discovery";
 
   return (
@@ -94,6 +97,10 @@ export function NetworkConnect({ onReadyChange }: Props) {
               try {
                 const s = await connectNetwork();
                 apply(s);
+                if (s.open_url) {
+                  window.open(s.open_url, "_blank", "noopener,noreferrer");
+                  return;
+                }
                 setPolling(true);
                 const refreshed = await refreshNetwork();
                 apply(refreshed);
@@ -111,13 +118,18 @@ export function NetworkConnect({ onReadyChange }: Props) {
             type="button"
             className="glass-btn glass-btn--sm icon-btn--text"
             onClick={async () => {
-              setPolling(true);
-              const s = await refreshNetwork();
-              apply(s);
-              if (s.state === "connected") setPolling(false);
+              setBusy(true);
+              try {
+                const s = await refreshNetwork();
+                apply(s);
+                if (s.state === "connected") setPolling(false);
+              } finally {
+                setBusy(false);
+              }
             }}
+            disabled={busy}
           >
-            Check now
+            {clientMode ? "I've signed in" : "Check now"}
           </button>
         )}
       </div>

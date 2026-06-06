@@ -1,5 +1,5 @@
 [Unit]
-Description=Anyone Email API (apimail.arclabs.page)
+Description=Reachunt API (apimail.arclabs.page)
 After=network.target
 
 [Service]

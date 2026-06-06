@@ -60,7 +60,7 @@ export function LibraryPanel({ onRun, onBuild, mailSettings }: Props) {
     const blob = new Blob([csv], { type: "text/csv" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "anyone-email-history.csv";
+    a.download = "reachunt-history.csv";
     a.click();
     URL.revokeObjectURL(a.href);
     push("Exported");

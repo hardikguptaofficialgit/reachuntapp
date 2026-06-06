@@ -97,6 +97,8 @@ export interface NetworkStatus {
   state: NetworkState;
   message: string;
   can_lookup: boolean;
+  client_mode?: boolean;
+  open_url?: string;
 }
 
 export interface HistoryItem {

@@ -145,3 +145,33 @@ async def resolve_person_search(page: Page, pq: PersonQuery) -> LinkedInFounder 
             role_id,
         )
     return await search_person(page, pq.name, pq.domain)
+
+
+async def resolve_person_search_ddg_only(pq: PersonQuery) -> LinkedInFounder | None:
+    """LinkedIn discovery without a browser session (DuckDuckGo site: search)."""
+    if pq.company_only:
+        role_id = pq.target_role or "founder"
+        label = (pq.company_label or pq.domain).strip()
+        role = get_target_role(role_id)
+        ddg_batch = await search_linkedin_via_ddg(
+            domain=pq.domain,
+            company_label=label,
+            target_role=role.id,
+        )
+        domains_to_try = [pq.domain.lower().strip()]
+        for alt in domain_candidates_for_company(label):
+            if alt not in domains_to_try:
+                domains_to_try.append(alt)
+        best: LinkedInFounder | None = None
+        best_score = 0
+        for dom in domains_to_try:
+            candidate, score = pick_best_for_role(ddg_batch, dom, role.id)
+            if candidate and score > best_score:
+                best, best_score = candidate, score
+        return best
+
+    ddg_batch = await search_linkedin_via_ddg(name=pq.name, domain=pq.domain)
+    best, score = pick_best(ddg_batch, pq.name, pq.domain)
+    if best and score >= MIN_MATCH_SCORE:
+        return best
+    return None

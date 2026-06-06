@@ -159,7 +159,7 @@ export default function App() {
 
   const exportHistory = useCallback(async () => {
     const items = await fetchHistory({ limit: 100 });
-    downloadCsv("anyone-email-history.csv", [
+    downloadCsv("reachunt-history.csv", [
       ["query", "email", "status", "created_at"],
       ...items.map((i) => [i.query, i.email, i.status, i.created_at]),
     ]);

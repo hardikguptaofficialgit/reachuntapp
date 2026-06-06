@@ -51,9 +51,7 @@ export function AuthScreen() {
         </div>
 
         <h1 className="auth-mark flow-item" style={flow(1)}>
-          Anyone
-          <br />
-          Email
+          Reachunt
         </h1>
         <p className="auth-tag flow-item" style={flow(2)}>
           Find anyone&apos;s work email — by name or by role at a company. Sign in with Linkit.

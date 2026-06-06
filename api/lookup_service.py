@@ -11,6 +11,7 @@ from api.config import (
     MAILMETEOR_DELAY_SEC,
     MAILMETEOR_JITTER_SEC,
     RATE_LIMIT_WAIT_MINUTES,
+    WEB_LINKEDIN_CLIENT_MODE,
     WEB_MAILMETEOR_PORT,
 )
 from api.db import Database
@@ -18,7 +19,7 @@ from api.linkedin_session import LinkedInSessionManager
 from api.messages import public_status, public_steps, sanitize_message
 from src.email_lookup import lookup_email
 from src.email_providers import get_api_client
-from src.linkedin_person import resolve_person_search
+from src.linkedin_person import resolve_person_search, resolve_person_search_ddg_only
 from src.playwright_loop import run_on_playwright_loop, use_playwright_loop
 from src.mailmeteor_auto import MailmeteorAuto
 from src.query_parse import lookup_cache_key, parse_person_query
@@ -154,15 +155,19 @@ class WebLookupService:
         steps.append("parsed")
 
         if user_id != "local":
-            if user_id not in getattr(self.linkedin_manager, "_verified", set()):
+            if WEB_LINKEDIN_CLIENT_MODE and self.db:
+                connected = bool(self.db.get_integration(user_id).get("linkedin_connected"))
+            elif user_id in getattr(self.linkedin_manager, "_verified", set()):
+                connected = True
+            else:
                 connected = await self.linkedin_manager.is_connected(user_id)
-                if not connected:
-                    return LookupResult(
-                        status="failed",
-                        query=text,
-                        message="Connect your professional network before running a lookup.",
-                        steps=["parse_error"],
-                    )
+            if not connected:
+                return LookupResult(
+                    status="failed",
+                    query=text,
+                    message="Connect your professional network before running a lookup.",
+                    steps=["parse_error"],
+                )
 
         result = LookupResult(
             status="running",
@@ -189,6 +194,9 @@ class WebLookupService:
                     title_hint="",
                 )
                 steps.append("profile_cache")
+            elif WEB_LINKEDIN_CLIENT_MODE and user_id != "local":
+                steps.append("linkedin_search")
+                person = await resolve_person_search_ddg_only(pq)
             else:
                 if user_id == "local":
                     from src.browser_cdp import CdpBrowser

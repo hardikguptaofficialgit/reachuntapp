@@ -51,8 +51,19 @@ JOB_MEMORY_MAX = int(os.environ.get("JOB_MEMORY_MAX", "8000"))
 SINGLE_LOOKUP_PRIORITY = int(os.environ.get("SINGLE_LOOKUP_PRIORITY", "0"))
 BULK_LOOKUP_PRIORITY = int(os.environ.get("BULK_LOOKUP_PRIORITY", "10"))
 
+# Production droplet: users sign in on LinkedIn in their own browser; lookups use DDG (no per-user Chrome).
+WEB_LINKEDIN_CLIENT_MODE = os.environ.get("WEB_LINKEDIN_CLIENT_MODE", "false").lower() in (
+    "1",
+    "true",
+    "yes",
+)
+WEB_LINKEDIN_LOGIN_URL = os.environ.get(
+    "WEB_LINKEDIN_LOGIN_URL",
+    "https://www.linkedin.com/login",
+).strip()
+
 # App branding + Linkit SSO (source slug must stay founder-email for existing Linkit redirects)
-APP_TITLE = os.environ.get("APP_TITLE", "Anyone Email")
+APP_TITLE = os.environ.get("APP_TITLE", "Reachunt")
 LINKIT_APP_URL = os.environ.get("LINKIT_APP_URL", "http://localhost:8080").rstrip("/")
 LINKIT_SOURCE = os.environ.get("LINKIT_SOURCE", "founder-email")
 ANYONE_EMAIL_APP_ID = os.environ.get(

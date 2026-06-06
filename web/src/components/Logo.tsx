@@ -9,7 +9,7 @@ const LOGO_SRC = "/logo.png";
 export function Logo({
   size = 32,
   className = "",
-  "aria-label": ariaLabel = "Anyone Email",
+  "aria-label": ariaLabel = "Reachunt",
 }: Props) {
   return (
     <span
@@ -27,7 +27,7 @@ export function LogoWordmark({ className = "" }: { className?: string }) {
   return (
     <span className={`logo-wordmark${className ? ` ${className}` : ""}`}>
       <Logo size={28} aria-label="" />
-      <span className="logo-wordmark__text">Anyone Email</span>
+      <span className="logo-wordmark__text">Reachunt</span>
     </span>
   );
 }
