@@ -36,7 +36,6 @@ MAILMETEOR_DELAY_SEC = float(os.environ.get("MAILMETEOR_DELAY_SEC", "1.5" if FAS
 MAILMETEOR_JITTER_SEC = float(os.environ.get("MAILMETEOR_JITTER_SEC", "0.5" if FAST_LOOKUP else "4"))
 LOOKUP_TIMEOUT_SEC = float(os.environ.get("LOOKUP_TIMEOUT_SEC", "12" if FAST_LOOKUP else "18"))
 RATE_LIMIT_WAIT_MINUTES = float(os.environ.get("RATE_LIMIT_WAIT_MINUTES", "8"))
-EMAIL_API_FIRST = os.environ.get("EMAIL_API_FIRST", "true").lower() in ("1", "true", "yes")
 
 # DuckDuckGo (ddgs) - enriches LinkedIn discovery without extra browser tabs
 DDG_SEARCH_ENABLED = os.environ.get("DDG_SEARCH_ENABLED", "true").lower() in ("1", "true", "yes")

@@ -1107,8 +1107,8 @@
       "startup_name": "Socket",
       "founder_name": "Feross",
       "linkedin_url": "https://www.linkedin.com/in/feross/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "feross@socket.dev",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1163,8 +1163,8 @@
       "startup_name": "Quartermaster",
       "founder_name": "Hammad Manzoor",
       "linkedin_url": "https://www.linkedin.com/in/hammad-manzoor/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "hammad@quadtrum.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1227,8 +1227,8 @@
       "startup_name": "Primer",
       "founder_name": "Tathagat",
       "linkedin_url": "https://www.linkedin.com/in/tathagat/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "tathagat@cognitivechasm.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1347,16 +1347,16 @@
       "startup_name": "Armada",
       "founder_name": "Arminas Valunas B4477255",
       "linkedin_url": "https://www.linkedin.com/in/arminas-valunas-b4477255/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "av@figma.com",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Armada",
       "founder_name": "Wrightdh",
       "linkedin_url": "https://www.linkedin.com/in/wrightdh/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "dan.wright@armada.ai",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1531,8 +1531,8 @@
       "startup_name": "Judgement Labs",
       "founder_name": "Akshayyyk",
       "linkedin_url": "https://www.linkedin.com/in/akshayyyk/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "akshay.kumar@shorturl.at",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1563,8 +1563,8 @@
       "startup_name": "Monaco",
       "founder_name": "Luke James88",
       "linkedin_url": "https://www.linkedin.com/in/luke-james88/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "luke@devora.io",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1595,8 +1595,8 @@
       "startup_name": "Vapi",
       "founder_name": "Nikhilro",
       "linkedin_url": "https://www.linkedin.com/in/nikhilro/",
-      "email": "",
-      "email_status": "rate_limit",
+      "email": "nikhil.gupta@vapi.ai",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1675,8 +1675,8 @@
       "startup_name": "Cowboy Space",
       "founder_name": "William (Bill) Kemp",
       "linkedin_url": "https://www.linkedin.com/in/william-bill-kemp-75b66a6/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "william.kemp@united-space-structures.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1811,16 +1811,16 @@
       "startup_name": "Ethos",
       "founder_name": "Mehak Malik",
       "linkedin_url": "https://www.linkedin.com/in/mehakmalik/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "mehak.malik@getethos.com",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Ethos",
       "founder_name": "Akroushan",
       "linkedin_url": "https://www.linkedin.com/in/akroushan/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "amit.roushan@getethos.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1859,8 +1859,8 @@
       "startup_name": "Lithosquare",
       "founder_name": "Maxbray",
       "linkedin_url": "https://www.linkedin.com/in/maxbray/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "max@antiordinary.vc",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1891,8 +1891,8 @@
       "startup_name": "Nace AI",
       "founder_name": "Adityakirti",
       "linkedin_url": "https://www.linkedin.com/in/adityakirti/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "kirti@iitp.ac.in",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -1931,8 +1931,8 @@
       "startup_name": "Sierra",
       "founder_name": "Catalina Cuellar Sierra 6875A0157",
       "linkedin_url": "https://www.linkedin.com/in/catalina-cuellar-sierra-6875a0157/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "catalinacuellar@finmarkacademy.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2027,8 +2027,8 @@
       "startup_name": "Actively",
       "founder_name": "Alon Shalvi",
       "linkedin_url": "https://www.linkedin.com/in/alon-shalvi/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "alon@werkitdata.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2163,8 +2163,8 @@
       "startup_name": "Parallel",
       "founder_name": "Bilalpatoli",
       "linkedin_url": "https://www.linkedin.com/in/bilalpatoli/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "bilal@leapify.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2283,8 +2283,8 @@
       "startup_name": "Comfy",
       "founder_name": "Dennis Gavrilin",
       "linkedin_url": "https://www.linkedin.com/in/dennis-gavrilin/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "dgavrilin@nes.ru",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2339,16 +2339,16 @@
       "startup_name": "Omni",
       "founder_name": "Denisdragusha",
       "linkedin_url": "https://www.linkedin.com/in/denisdragusha/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "denis@omnigroup-llc.com",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Sooth Labs",
       "founder_name": "Baasilbiniyamin",
       "linkedin_url": "https://www.linkedin.com/in/baasilbiniyamin/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "baasil@ishaniya.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2363,8 +2363,8 @@
       "startup_name": "Sooth Labs",
       "founder_name": "Nyebuchi Jonathan 074201219",
       "linkedin_url": "https://www.linkedin.com/in/nyebuchi-jonathan-074201219/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "nyebuchi.jonathan@ust.edu.ng",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2387,8 +2387,8 @@
       "startup_name": "Antier Solutions Pvt Ltd",
       "founder_name": "Vikramrsingh",
       "linkedin_url": "https://www.linkedin.com/in/vikramrsingh/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "vikram@antier.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2403,16 +2403,16 @@
       "startup_name": "Antier Solutions Pvt Ltd",
       "founder_name": "Shashi Pal Ba54358",
       "linkedin_url": "https://www.linkedin.com/in/shashi-pal-ba54358/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "shashi@antiersolutions.com",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Antier Solutions Pvt Ltd",
       "founder_name": "Priyanka Kashyap 32Ab9121A",
       "linkedin_url": "https://www.linkedin.com/in/priyanka-kashyap-32ab9121a/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "priyanka.kashyap@antiersolutions.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2483,8 +2483,8 @@
       "startup_name": "FlowPrompt AI",
       "founder_name": "Chayan Mukherjee 01708469",
       "linkedin_url": "https://www.linkedin.com/in/chayan-mukherjee-01708469/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "chayan@indibrothers.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2499,8 +2499,8 @@
       "startup_name": "FlowPrompt AI",
       "founder_name": "Param Shah",
       "linkedin_url": "https://www.linkedin.com/in/param-shah-ab4553329/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "ps@openai.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2515,8 +2515,8 @@
       "startup_name": "Infinigence",
       "founder_name": "Farukhbashir",
       "linkedin_url": "https://www.linkedin.com/in/farukhbashir/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "farrukh@infinigence.me",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2555,8 +2555,8 @@
       "startup_name": "RoboScience",
       "founder_name": "Ye Tian 065161A8",
       "linkedin_url": "https://www.linkedin.com/in/ye-tian-065161a8/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "ye@roboscience.ai",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2571,8 +2571,8 @@
       "startup_name": "RoboScience",
       "founder_name": "Marvin Xia Bb1763231",
       "linkedin_url": "https://www.linkedin.com/in/marvin-xia-bb1763231/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "marvin.xia@robertwalters.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2651,8 +2651,8 @@
       "startup_name": "Blunav",
       "founder_name": "Nishanth Ravindran A043475B",
       "linkedin_url": "https://www.linkedin.com/in/nishanth-ravindran-a043475b/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "nishanth.ravindran@harrison.ai",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2667,24 +2667,24 @@
       "startup_name": "Darkhive",
       "founder_name": "Mh1011",
       "linkedin_url": "https://www.linkedin.com/in/mh1011/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "mhatfield@1011vc.com",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Darkhive",
       "founder_name": "Gregorycoleman",
       "linkedin_url": "https://www.linkedin.com/in/gregorycoleman/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "greg.coleman@fimail.co",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Darkhive",
       "founder_name": "Michalfiuk",
       "linkedin_url": "https://www.linkedin.com/in/michalfiuk/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "michal.fiuk@aformic.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2707,8 +2707,8 @@
       "startup_name": "forml",
       "founder_name": "Linder",
       "linkedin_url": "https://www.linkedin.com/in/linder/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "natan.linder@tulip.co",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2739,24 +2739,24 @@
       "startup_name": "forml",
       "founder_name": "David Lakatos 1B299B16",
       "linkedin_url": "https://www.linkedin.com/in/david-lakatos-1b299b16/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "lakatos@formlabs.com",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Modicus Prime",
       "founder_name": "Paolo Alejandro Catilo 38B30Bb8",
       "linkedin_url": "https://www.linkedin.com/in/paolo-alejandro-catilo-38b30bb8/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "paolo@cerebroneurotech.com",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Modicus Prime",
       "founder_name": "Julian L Graham Eps Cta 549533114",
       "linkedin_url": "https://www.linkedin.com/in/julian-l-graham-eps-cta-549533114/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "julian@modicus.live",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2771,8 +2771,8 @@
       "startup_name": "Modicus Prime",
       "founder_name": "Michael Zuckert",
       "linkedin_url": "https://www.linkedin.com/in/michael-zuckert-a41b5823/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "mike@brown.edu",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2804,23 +2804,23 @@
       "founder_name": "Ashema Mehtta",
       "linkedin_url": "https://www.linkedin.com/in/ashema-mehtta/",
       "email": "",
-      "email_status": "rate_limit",
+      "email_status": "not_found",
       "notes": ""
     },
     {
       "startup_name": "Fathom",
       "founder_name": "Tovahpaglaro",
       "linkedin_url": "https://www.linkedin.com/in/tovahpaglaro/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "tovah@fathomthat.ai",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Fathom",
       "founder_name": "Dhruvin Modi 260602",
       "linkedin_url": "https://www.linkedin.com/in/dhruvin-modi-260602/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "dhruvin@shardagranite.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2843,16 +2843,16 @@
       "startup_name": "Data\u00b2",
       "founder_name": "Leandrosrur",
       "linkedin_url": "https://www.linkedin.com/in/leandrosrur/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "leandro.srur@fimail.co",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "Data\u00b2",
       "founder_name": "Abdelhalimrafrafi",
       "linkedin_url": "https://www.linkedin.com/in/abdelhalimrafrafi/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "a.rafrafi@data2innov.fr",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2867,8 +2867,8 @@
       "startup_name": "Kohort",
       "founder_name": "Janpickard",
       "linkedin_url": "https://www.linkedin.com/in/janpickard/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "jan@kohort.io",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2891,8 +2891,8 @@
       "startup_name": "Kohort",
       "founder_name": "Status is reachable",
       "linkedin_url": "https://www.linkedin.com/in/pavanksriram/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "pavan.sriram@kohortlearn.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2907,8 +2907,8 @@
       "startup_name": "ENGINEAI",
       "founder_name": "Prince Gupta 20B301136",
       "linkedin_url": "https://www.linkedin.com/in/prince-gupta-20b301136/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "prince@coachengg.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -2963,24 +2963,24 @@
       "startup_name": "LiveEO",
       "founder_name": "Svenprzy",
       "linkedin_url": "https://www.linkedin.com/in/svenprzy/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "sven@live-eo.com",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "LiveEO",
       "founder_name": "Tjvapola",
       "linkedin_url": "https://www.linkedin.com/in/tjvapola/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "terhi.vapola@greencode.vc",
+      "email_status": "found",
       "notes": ""
     },
     {
       "startup_name": "LiveEO",
       "founder_name": "Martinbuhl9",
       "linkedin_url": "https://www.linkedin.com/in/martinbuhl9/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "mb@helantic.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -3003,8 +3003,8 @@
       "startup_name": "Nace.AI",
       "founder_name": "Zdatbayev",
       "linkedin_url": "https://www.linkedin.com/in/zdatbayev/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "zhanibek@nace.ai",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -3019,8 +3019,8 @@
       "startup_name": "Nace.AI",
       "founder_name": "Sudha Valluru 3744A6",
       "linkedin_url": "https://www.linkedin.com/in/sudha-valluru-3744a6/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "sudha@nace.ai",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -3395,8 +3395,8 @@
       "startup_name": "NavigateAI",
       "founder_name": "Jennifer Deason 8B451",
       "linkedin_url": "https://www.linkedin.com/in/jennifer-deason-8b451/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "jennifer.d@concentrix.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -3411,8 +3411,8 @@
       "startup_name": "NavigateAI",
       "founder_name": "Michael Chen 4649B39",
       "linkedin_url": "https://www.linkedin.com/in/michael-chen-4649b39/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "michael@extend.com",
+      "email_status": "found",
       "notes": ""
     },
     {
@@ -3427,8 +3427,8 @@
       "startup_name": "Avrea",
       "founder_name": "Hannuvaltonen",
       "linkedin_url": "https://www.linkedin.com/in/hannuvaltonen/",
-      "email": "",
-      "email_status": "not_found",
+      "email": "hannu.valtonen@ohmu.fi",
+      "email_status": "found",
       "notes": ""
     },
     {

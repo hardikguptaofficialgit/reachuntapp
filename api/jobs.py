@@ -36,6 +36,8 @@ def _public_result(result: LookupResult) -> dict[str, Any]:
         "profile_url": result.linkedin_url,
         "email": result.email,
         "status": result.email_status,
+        "confidence": result.email_confidence,
+        "validation": result.email_validation,
         "message": sanitize_message(result.message),
         "steps": public_steps(result.steps),
     }

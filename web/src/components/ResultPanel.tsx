@@ -100,6 +100,29 @@ export function ResultPanel({
 
   const displayName = result.display_name || result.name;
   const domain = result.domain?.trim();
+  const score = result.validation?.score ?? result.confidence ?? 0;
+  const emailBadge =
+    result.status === "verified"
+      ? "Verified"
+      : result.status === "likely"
+        ? "Likely"
+        : result.status === "risky"
+          ? "Risky"
+          : "Found";
+  const validationSignals = [
+    result.validation?.mx_found ? "MX" : null,
+    result.validation?.smtp_checked
+      ? result.validation?.smtp_valid === true
+        ? "SMTP"
+        : result.validation?.smtp_valid === false
+          ? "SMTP rejected"
+          : "SMTP unknown"
+      : null,
+    result.validation?.catch_all ? "Catch-all" : null,
+    result.validation?.free_provider ? "Free provider" : null,
+    result.validation?.role_account ? "Role address" : null,
+    result.validation?.disposable ? "Disposable" : null,
+  ].filter(Boolean) as string[];
 
   return (
     <div className="outcome-slot">
@@ -128,7 +151,15 @@ export function ResultPanel({
           <>
             <div className="outcome__hero">
               <p className="outcome__email">{email}</p>
-              <span className="badge">Verified</span>
+              <div className="outcome__verify">
+                <span className={`badge badge--${result.status || "found"}`}>{emailBadge}</span>
+                {score > 0 && <span className="score-pill">{score}%</span>}
+                {validationSignals.slice(0, 4).map((signal) => (
+                  <span key={signal} className="signal-pill">
+                    {signal}
+                  </span>
+                ))}
+              </div>
             </div>
 
             <ComposeMailActions

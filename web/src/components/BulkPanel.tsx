@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+﻿import { useCallback, useEffect, useMemo, useState } from "react";
 import { createBulkLookup, fetchQueueLimits, type Job, type QueueLimits } from "../api";
 import { BulkMailCompose } from "./BulkMailCompose";
 import { useToast } from "../context/ToastContext";
@@ -114,7 +114,7 @@ export function BulkPanel({
     try {
       const { job_ids: jobIds, queued, requested } = await createBulkLookup(batch);
       if (!jobIds.length) {
-        push("Nothing queued — check your lines or queue limit");
+        push("Nothing queued â€” check your lines or queue limit");
         return;
       }
       if (queued < requested) {
@@ -160,7 +160,7 @@ export function BulkPanel({
         if (notify && r.email) notifyComplete(r.query, r.email);
       }
 
-      push(`Done · ${foundCount}/${jobIds.length} emails`);
+      push(`Done Â· ${foundCount}/${jobIds.length} emails`);
       onDone();
       void fetchQueueLimits().then(setLimits).catch(() => undefined);
     } catch (err) {
@@ -223,15 +223,15 @@ export function BulkPanel({
       {drag && <p className="bulk__drop">Drop file to import</p>}
       <p className={`bulk__hint${overLimit ? " bulk__hint--warn" : ""}`}>
         {overLimit
-          ? `Only first ${maxLines} lines will run — remove ${lines.length - maxLines} extra`
-          : `One per line · up to ${maxLines} · queued on server · drop .txt / .csv`}
+          ? `Only first ${maxLines} lines will run â€” remove ${lines.length - maxLines} extra`
+          : `One per line Â· up to ${maxLines} Â· queued on server Â· drop .txt / .csv`}
       </p>
       {queueHint && <p className="bulk__queue-hint">{queueHint}</p>}
       <textarea
         className="bulk__area"
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder={"Hardik Gupta — linkitapp.in\nSarah Chen — stripe.com"}
+        placeholder={"stripe.com\nfigma.com\nopenai.com"}
         disabled={running || disabled}
         rows={8}
       />
@@ -270,7 +270,7 @@ export function BulkPanel({
             disabled={!lines.length || running || disabled || overLimit}
             onClick={() => void run()}
           >
-            {running ? "···" : "Queue all"}
+            {running ? "Â·Â·Â·" : "Queue all"}
           </button>
         </div>
       </div>
@@ -304,7 +304,7 @@ export function BulkPanel({
               <span className="bulk__q">{r.query}</span>
               <span className="bulk__end">
                 <span className={`bulk__s bulk__s--${r.status}`}>
-                  {r.email || (r.status === "running" ? "···" : r.status)}
+                  {r.email || (r.status === "running" ? "Â·Â·Â·" : r.status)}
                 </span>
                 {r.email && !running && (
                   <button
@@ -339,3 +339,4 @@ export function BulkPanel({
     </section>
   );
 }
+

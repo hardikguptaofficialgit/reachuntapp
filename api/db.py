@@ -437,7 +437,7 @@ class Database:
         missed_only: bool = False,
     ) -> list[dict[str, Any]]:
         sql = """
-            SELECT query, email, status, created_at
+            SELECT id, query, email, status, created_at
             FROM lookup_history
             WHERE user_id = ?
         """
@@ -454,6 +454,35 @@ class Database:
         with self.session() as conn:
             cur = conn.execute(sql, params)
             return [dict(r) for r in cur.fetchall()]
+
+    def remove_history_item(self, user_id: str, history_id: str) -> bool:
+        with self.session() as conn:
+            cur = conn.execute(
+                "DELETE FROM lookup_history WHERE user_id = ? AND id = ?",
+                (user_id, history_id),
+            )
+            return cur.rowcount > 0
+
+    def clear_history(
+        self,
+        user_id: str,
+        *,
+        search: str = "",
+        verified_only: bool = False,
+        missed_only: bool = False,
+    ) -> int:
+        sql = "DELETE FROM lookup_history WHERE user_id = ?"
+        params: list[Any] = [user_id]
+        if verified_only:
+            sql += " AND email IS NOT NULL AND TRIM(email) != ''"
+        if missed_only:
+            sql += " AND (email IS NULL OR TRIM(email) = '')"
+        if search.strip():
+            sql += " AND LOWER(query) LIKE ?"
+            params.append(f"%{search.strip().lower()}%")
+        with self.session() as conn:
+            cur = conn.execute(sql, params)
+            return int(cur.rowcount or 0)
 
     def history_has_query(self, user_id: str, query: str) -> bool:
         with self.session() as conn:
@@ -502,6 +531,11 @@ class Database:
                 (user_id, fav_id),
             )
             return cur.rowcount > 0
+
+    def clear_favorites(self, user_id: str) -> int:
+        with self.session() as conn:
+            cur = conn.execute("DELETE FROM favorites WHERE user_id = ?", (user_id,))
+            return int(cur.rowcount or 0)
 
     def list_favorites(self, user_id: str) -> list[dict[str, Any]]:
         with self.session() as conn:

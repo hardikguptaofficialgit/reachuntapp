@@ -18,5 +18,7 @@ class LookupResult:
     linkedin_url: str = ""
     email: str = ""
     email_status: str = ""
+    email_confidence: int = 0
+    email_validation: dict = field(default_factory=dict)
     message: str = ""
     steps: list[str] = field(default_factory=list)

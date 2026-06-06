@@ -12,7 +12,7 @@ export function SupportDock() {
         href={X_URL}
         target="_blank"
         rel="noopener noreferrer"
-        title="@stryker_inside on X"
+        data-cursor-tooltip="@stryker_inside on X"
         aria-label="Follow @stryker_inside on X"
       >
         <XIcon />
@@ -25,7 +25,7 @@ export function SupportDock() {
           href={KOFI_URL}
           target="_blank"
           rel="noopener noreferrer"
-          title="Buy me a coffee on Ko-fi"
+          data-cursor-tooltip="Buy me a coffee on Ko-fi"
           aria-label="Buy me a coffee on Ko-fi"
         >
           <CoffeeIcon />

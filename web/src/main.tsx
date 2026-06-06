@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { CursorTooltip } from "./components/CursorTooltip";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { SupportDock } from "./components/SupportDock";
 import { AuthProvider } from "./context/AuthContext";
@@ -26,6 +27,7 @@ createRoot(document.getElementById("root")!).render(
         <App />
       </ErrorBoundary>
       <SupportDock />
+      <CursorTooltip />
     </ToastProvider>
   </AuthProvider>
 );

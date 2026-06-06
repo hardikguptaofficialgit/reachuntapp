@@ -43,6 +43,19 @@ export interface LookupResultPayload {
   profile_url: string;
   email: string;
   status: string;
+  confidence?: number;
+  validation?: {
+    score?: number;
+    verdict?: string;
+    signals?: string[];
+    mx_found?: boolean;
+    smtp_checked?: boolean;
+    smtp_valid?: boolean | null;
+    disposable?: boolean;
+    free_provider?: boolean;
+    role_account?: boolean;
+    catch_all?: boolean | null;
+  };
   message: string;
   steps: PublicStep[];
 }
@@ -102,6 +115,7 @@ export interface NetworkStatus {
 }
 
 export interface HistoryItem {
+  id: string;
   query: string;
   email: string;
   status: string;
@@ -147,6 +161,33 @@ export async function checkHistoryQuery(query: string): Promise<boolean> {
   return Boolean(data.exists);
 }
 
+export async function removeHistoryItem(id: string): Promise<void> {
+  const res = await fetch(`${API_BASE}/api/v1/history/${id}`, {
+    ...buildFetchOpts(),
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+}
+
+export async function clearHistory(opts?: {
+  q?: string;
+  verifiedOnly?: boolean;
+  missedOnly?: boolean;
+}): Promise<number> {
+  const params = new URLSearchParams();
+  if (opts?.q) params.set("q", opts.q);
+  if (opts?.verifiedOnly) params.set("verified_only", "true");
+  if (opts?.missedOnly) params.set("missed_only", "true");
+  const qs = params.toString();
+  const res = await fetch(`${API_BASE}/api/v1/history${qs ? `?${qs}` : ""}`, {
+    ...buildFetchOpts(),
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  const data = await res.json();
+  return Number(data.deleted ?? 0);
+}
+
 export async function fetchActivity(days = 7): Promise<ActivityDay[]> {
   const res = await fetch(`${API_BASE}/api/v1/activity?days=${days}`, buildFetchOpts());
   if (!res.ok) throw new Error(await parseError(res));
@@ -176,6 +217,16 @@ export async function removeFavorite(id: string): Promise<void> {
     method: "DELETE",
   });
   if (!res.ok) throw new Error(await parseError(res));
+}
+
+export async function clearFavorites(): Promise<number> {
+  const res = await fetch(`${API_BASE}/api/v1/favorites`, {
+    ...buildFetchOpts(),
+    method: "DELETE",
+  });
+  if (!res.ok) throw new Error(await parseError(res));
+  const data = await res.json();
+  return Number(data.deleted ?? 0);
 }
 
 export interface BulkLookupResult {

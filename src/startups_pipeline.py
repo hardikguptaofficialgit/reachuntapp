@@ -13,7 +13,6 @@ import pandas as pd
 from src.browser_cdp import CdpBrowser
 from src.csv_store import load_results_csv, prepare_results_df, safe_write_results_csv
 from src.email_lookup import lookup_email
-from src.email_providers import get_api_client
 from src.linkedin_founders import search_founders, setup_linkedin_login
 from src.mailmeteor_auto import MailmeteorAuto
 
@@ -184,7 +183,6 @@ async def run_email_phase(args: argparse.Namespace) -> None:
         print("All emails done.")
         return
 
-    api_client = get_api_client()
     mail = MailmeteorAuto(
         browser=args.browser,
         port=args.mailmeteor_port,
@@ -208,7 +206,7 @@ async def run_email_phase(args: argparse.Namespace) -> None:
                     mail,
                     linkedin,
                     rate_limit_wait_minutes=args.rate_limit_wait,
-                    api_client=api_client,
+                    api_client=None,
                 )
             except Exception as exc:
                 email, status = "", "connection_error"
@@ -229,8 +227,6 @@ async def run_email_phase(args: argparse.Namespace) -> None:
             save_progress(progress)
     finally:
         await mail.close()
-        if api_client:
-            api_client.close()
 
     print(f"\nEmail phase done. Found {found} emails → {path}")
 

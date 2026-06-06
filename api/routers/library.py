@@ -41,6 +41,38 @@ async def history_check(
     return {"exists": db.history_has_query(user["id"], q)}
 
 
+@router.delete("/api/v1/history/{history_id}")
+async def delete_history_item(
+    history_id: str,
+    user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db),
+):
+    if user.get("is_dev"):
+        return {"ok": True}
+    if not db.remove_history_item(user["id"], history_id):
+        raise HTTPException(status_code=404, detail="Not found.")
+    return {"ok": True}
+
+
+@router.delete("/api/v1/history")
+async def clear_history(
+    user: dict = Depends(get_current_user),
+    db: Database = Depends(get_db),
+    q: str = "",
+    verified_only: bool = False,
+    missed_only: bool = False,
+):
+    if user.get("is_dev"):
+        return {"ok": True, "deleted": 0}
+    deleted = db.clear_history(
+        user["id"],
+        search=q,
+        verified_only=verified_only,
+        missed_only=missed_only,
+    )
+    return {"ok": True, "deleted": deleted}
+
+
 @router.get("/api/v1/activity")
 async def activity(
     user: dict = Depends(get_current_user),
@@ -70,6 +102,13 @@ async def add_favorite(
     fav_id = new_user_id()
     db.add_favorite(fav_id, user["id"], body.query, body.email)
     return {"ok": True, "id": fav_id}
+
+
+@router.delete("/api/v1/favorites")
+async def clear_favorites(user: dict = Depends(get_current_user), db: Database = Depends(get_db)):
+    if user.get("is_dev"):
+        return {"ok": True, "deleted": 0}
+    return {"ok": True, "deleted": db.clear_favorites(user["id"])}
 
 
 @router.delete("/api/v1/favorites/{fav_id}")

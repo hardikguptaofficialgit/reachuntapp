@@ -1,14 +1,14 @@
 import { useState } from "react";
 
 const POOL = [
-  "Hardik Gupta — linkitapp.in",
-  "Sarah Chen — stripe.com",
-  "Alex Rivera — notion.so",
-  "Priya Nair — figma.com",
-  "Jordan Lee — linear.app",
-  "Maya Okonkwo — vercel.com",
-  "Chris Park — anthropic.com",
-  "Sam Torres — ramp.com",
+  "stripe.com",
+  "figma.com",
+  "openai.com",
+  "notion.so",
+  "linear.app",
+  "vercel.com",
+  "anthropic.com",
+  "ramp.com",
 ];
 
 type Props = {
@@ -22,14 +22,14 @@ export function SpinExamples({ onPick }: Props) {
   const spin = () => {
     if (spinning) return;
     setSpinning(true);
-    setLabel("Rolling…");
+    setLabel("Rolling...");
 
     let ticks = 0;
     const max = 14;
     const id = window.setInterval(() => {
       ticks += 1;
       const pick = POOL[Math.floor(Math.random() * POOL.length)];
-      setLabel(pick.split(" — ")[0] + "…");
+      setLabel(`${pick}...`);
       if (ticks >= max) {
         clearInterval(id);
         const final = POOL[Math.floor(Math.random() * POOL.length)];
@@ -46,7 +46,7 @@ export function SpinExamples({ onPick }: Props) {
       className={`spin-examples glass-btn glass-btn--sm${spinning ? " spin-examples--on" : ""}`}
       onClick={spin}
       disabled={spinning}
-      title="Random example query"
+      title="Random company domain"
     >
       <span className="spin-examples__icon" aria-hidden>
         ◎
@@ -55,3 +55,4 @@ export function SpinExamples({ onPick }: Props) {
     </button>
   );
 }
+

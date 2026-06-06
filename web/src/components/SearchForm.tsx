@@ -6,9 +6,9 @@ import { useDuplicateCheck } from "../hooks/useDuplicateCheck";
 import { BrandIcon } from "./BrandIcon";
 
 const EXAMPLES: { query: string; domain?: string }[] = [
-  { query: "Hardik Gupta - linkitapp.in", domain: "linkitapp.in" },
-  { query: "Dylan Field - figma.com", domain: "figma.com" },
-  { query: "Sam Altman - openai.com", domain: "openai.com" },
+  { query: "stripe.com", domain: "stripe.com" },
+  { query: "figma.com", domain: "figma.com" },
+  { query: "openai.com", domain: "openai.com" },
 ];
 
 export type SearchMode = "quick" | "split";
@@ -109,7 +109,7 @@ export function SearchForm({
                 onMultiPaste(pasted);
               }
             }}
-            placeholder="Full name - company domain"
+            placeholder="Company domain or full name - domain"
             autoComplete="off"
             spellCheck={false}
             disabled={busy || disabled}

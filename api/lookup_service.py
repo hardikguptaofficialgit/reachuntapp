@@ -5,7 +5,6 @@ from __future__ import annotations
 import asyncio
 
 from api.config import (
-    EMAIL_API_FIRST,
     LINKEDIN_MAX_CONCURRENT,
     LOOKUP_MAX_SEC,
     MAILMETEOR_DELAY_SEC,
@@ -18,12 +17,12 @@ from api.db import Database
 from api.linkedin_session import LinkedInSessionManager
 from api.messages import public_status, public_steps, sanitize_message
 from src.email_lookup import lookup_email
-from src.email_providers import get_api_client
 from src.linkedin_person import resolve_person_search, resolve_person_search_ddg_only
 from src.playwright_loop import run_on_playwright_loop, use_playwright_loop
 from src.mailmeteor_auto import MailmeteorAuto
 from src.query_parse import lookup_cache_key, parse_person_query
 from src.lookup_result import LookupResult
+from src.email_validation import validate_email
 
 
 class WebLookupService:
@@ -251,30 +250,52 @@ class WebLookupService:
         steps.append("email_lookup")
         self.schedule_prewarm()
         resolver = await self._email_resolver()
-        api_client = get_api_client() if EMAIL_API_FIRST else None
         try:
             email, email_status = await lookup_email(
                 resolver,
                 result.linkedin_url,
                 rate_limit_wait_minutes=self.rate_limit_wait,
-                api_client=api_client,
+                api_client=None,
+                name=result.founder_name or result.name,
+                domain=result.domain,
             )
         except Exception as exc:
             result.status = "failed"
             result.message = sanitize_message(str(exc))
             result.steps = steps + ["email_error"]
             return result
-        finally:
-            if api_client:
-                api_client.close()
-
         result.email = email or ""
-        result.email_status = public_status(email_status or ("found" if email else "not_found"))
         result.status = "completed"
         if email:
-            result.message = "Work email verified."
-            steps.append("email_found")
+            validation = await asyncio.to_thread(validate_email, email)
+            result.email_confidence = validation.score
+            result.email_validation = validation.public_dict()
+            if validation.verdict in {"invalid", "undeliverable"} or validation.role_account:
+                result.email = ""
+                result.email_status = public_status("not_found")
+                result.message = (
+                    "Profile located. Email candidate was a generic inbox."
+                    if validation.role_account
+                    else "Profile located. Email candidate failed validation."
+                )
+                steps.append("no_email")
+            else:
+                if validation.verdict == "verified":
+                    internal_status = "found_validated"
+                elif validation.verdict == "risky":
+                    internal_status = "found_risky"
+                else:
+                    internal_status = "found_likely"
+                result.email_status = public_status(internal_status)
+                if result.email_status == "verified":
+                    result.message = "Work email validated."
+                elif result.email_status == "likely":
+                    result.message = "Likely work email found."
+                else:
+                    result.message = "Email found with risk signals."
+                steps.append("email_found")
         else:
+            result.email_status = public_status(email_status or "not_found")
             result.message = "Profile located. No work email available right now."
             steps.append("no_email")
         result.steps = steps

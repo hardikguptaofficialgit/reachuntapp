@@ -1,8 +1,8 @@
 export const PLACEHOLDER_LINES = [
-  "Name — domain.com",
+  "domain.com",
   "Company name or domain",
   "Try: Notion or stripe.com",
-  "Try: Hardik Gupta — linkitapp.in",
+  "Try: figma.com or openai.com",
 ];
 
 export function pick<T>(arr: T[], seed = 0): T {
@@ -12,3 +12,4 @@ export function pick<T>(arr: T[], seed = 0): T {
 export function rotatePlaceholder(tick: number): string {
   return pick(PLACEHOLDER_LINES, tick);
 }
+

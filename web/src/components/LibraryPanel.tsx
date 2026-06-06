@@ -1,9 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   addFavorite,
+  clearFavorites,
+  clearHistory,
   fetchFavorites,
   fetchHistory,
   removeFavorite,
+  removeHistoryItem,
   type FavoriteItem,
   type HistoryItem,
 } from "../api";
@@ -27,6 +30,9 @@ export function LibraryPanel({ onRun, onBuild, mailSettings }: Props) {
   const [filter, setFilter] = useState<"all" | "found" | "miss">("all");
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [clearing, setClearing] = useState(false);
+  const [clearingSaved, setClearingSaved] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -77,6 +83,56 @@ export function LibraryPanel({ onRun, onBuild, mailSettings }: Props) {
     void load();
   };
 
+  const clearSaved = async () => {
+    if (!favorites.length) return;
+    if (!window.confirm("Delete all saved lookups? This cannot be undone.")) return;
+    setClearingSaved(true);
+    try {
+      const deleted = await clearFavorites();
+      setFavorites([]);
+      push(deleted ? `Deleted ${deleted}` : "Nothing to delete");
+    } catch {
+      push("Clear saved failed");
+    } finally {
+      setClearingSaved(false);
+    }
+  };
+
+  const deleteHistory = async (item: HistoryItem) => {
+    if (!window.confirm(`Delete "${item.query}" from history?`)) return;
+    setDeletingId(item.id);
+    try {
+      await removeHistoryItem(item.id);
+      setHistory((rows) => rows.filter((row) => row.id !== item.id));
+      push("Deleted");
+    } catch {
+      push("Delete failed");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const clearVisibleHistory = async () => {
+    if (!history.length) return;
+    const scoped = search.trim() || filter !== "all";
+    const label = scoped ? "visible history results" : "all history";
+    if (!window.confirm(`Delete ${label}? This cannot be undone.`)) return;
+    setClearing(true);
+    try {
+      const deleted = await clearHistory({
+        q: search,
+        verifiedOnly: filter === "found",
+        missedOnly: filter === "miss",
+      });
+      push(deleted ? `Deleted ${deleted}` : "Nothing to delete");
+      void load();
+    } catch {
+      push("Clear failed");
+    } finally {
+      setClearing(false);
+    }
+  };
+
   const mailRecipients = useMemo(
     () =>
       history
@@ -114,6 +170,14 @@ export function LibraryPanel({ onRun, onBuild, mailSettings }: Props) {
         <button type="button" className="glass-btn glass-btn--sm" onClick={exportCsv}>
           Export
         </button>
+        <button
+          type="button"
+          className="glass-btn glass-btn--sm"
+          onClick={() => void clearVisibleHistory()}
+          disabled={!history.length || clearing}
+        >
+          {clearing ? "Clearing" : filter === "all" && !search.trim() ? "Clear all" : "Clear shown"}
+        </button>
       </div>
 
       {mailRecipients.length > 0 && (
@@ -126,7 +190,17 @@ export function LibraryPanel({ onRun, onBuild, mailSettings }: Props) {
 
       {favorites.length > 0 && (
         <>
-          <h3 className="library__head">Saved</h3>
+          <div className="library__section-head">
+            <h3 className="library__head">Saved</h3>
+            <button
+              type="button"
+              className="library__link"
+              onClick={() => void clearSaved()}
+              disabled={clearingSaved}
+            >
+              {clearingSaved ? "Clearing" : "Clear saved"}
+            </button>
+          </div>
           <ul className="recent__list">
             {favorites.map((f) => (
               <li key={f.id} className="library__fav">
@@ -151,7 +225,7 @@ export function LibraryPanel({ onRun, onBuild, mailSettings }: Props) {
       <h3 className="library__head">History</h3>
       <ul className="recent__list">
         {history.map((item) => (
-          <li key={`${item.created_at}-${item.query}`} className="library__fav">
+          <li key={item.id || `${item.created_at}-${item.query}`} className="library__fav">
             <button type="button" className="recent__item" onClick={() => onRun(item.query)}>
               <span className="recent__q">{item.query}</span>
               <span className={`recent__e${item.email ? " recent__e--hit" : ""}`}>
@@ -177,6 +251,16 @@ export function LibraryPanel({ onRun, onBuild, mailSettings }: Props) {
                 ◫
               </button>
             )}
+            <button
+              type="button"
+              className="library__star library__star--danger"
+              onClick={() => void deleteHistory(item)}
+              disabled={deletingId === item.id}
+              aria-label="Delete lookup"
+              title="Delete lookup"
+            >
+              {deletingId === item.id ? "..." : "x"}
+            </button>
           </li>
         ))}
       </ul>
