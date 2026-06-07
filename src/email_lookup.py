@@ -1,4 +1,4 @@
-"""Strict custom email lookup with Mailmeteor fallback + rate-limit handling."""
+"""Mailmeteor-first email lookup with strict custom fallback."""
 
 from __future__ import annotations
 
@@ -33,6 +33,18 @@ async def lookup_email(
     domain: str = "",
     extra_delay: float = 0.0,
 ) -> tuple[str, str]:
+    email, status = await finder.find_email_with_delay(
+        linkedin_url,
+        rate_limit_wait_minutes=rate_limit_wait_minutes,
+        skip_cooldown=_fast_mode(),
+    )
+
+    if extra_delay > 0:
+        await asyncio.sleep(extra_delay)
+
+    if email:
+        return email, status
+
     try:
         custom = await asyncio.wait_for(
             find_custom_email(
@@ -47,16 +59,7 @@ async def lookup_email(
     if custom and custom.email:
         return custom.email, custom.status
 
-    email, status = await finder.find_email_with_delay(
-        linkedin_url,
-        rate_limit_wait_minutes=rate_limit_wait_minutes,
-        skip_cooldown=_fast_mode(),
-    )
-
-    if extra_delay > 0:
-        await asyncio.sleep(extra_delay)
-
-    return email, status
+    return "", status
 
 
 async def cooldown_minutes(minutes: float, label: str = "Mailmeteor") -> None:

@@ -1,13 +1,10 @@
 type Props = {
   busy: boolean;
-  canLookup: boolean;
   tab: string;
   lastQuery?: string | null;
 };
 
-export function WorkflowBar({ busy, canLookup, tab, lastQuery }: Props) {
-  const needsDiscovery = tab === "discover" || tab === "bulk";
-
+export function WorkflowBar({ busy, tab, lastQuery }: Props) {
   if (busy) {
     return (
       <div className="workflow-bar workflow-bar--busy" role="status" aria-live="polite">
@@ -16,14 +13,6 @@ export function WorkflowBar({ busy, canLookup, tab, lastQuery }: Props) {
           Lookup running
           {lastQuery ? ` - ${shortQuery(lastQuery)}` : ""}
         </span>
-      </div>
-    );
-  }
-
-  if (needsDiscovery && !canLookup) {
-    return (
-      <div className="workflow-bar workflow-bar--warn" role="status">
-        Discovery is getting ready
       </div>
     );
   }

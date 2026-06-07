@@ -29,7 +29,6 @@ async function parseError(res: Response): Promise<string> {
 }
 
 export type JobStatus = "queued" | "running" | "completed" | "failed";
-export type NetworkState = "disconnected" | "connecting" | "connected";
 
 export interface PublicStep {
   id: string;
@@ -105,14 +104,6 @@ export type ParseResult =
       query_kind?: "person" | "company_domain" | "company_name";
     }
   | { ok: false; error: string };
-
-export interface NetworkStatus {
-  state: NetworkState;
-  message: string;
-  can_lookup: boolean;
-  client_mode?: boolean;
-  open_url?: string;
-}
 
 export interface HistoryItem {
   id: string;
@@ -317,30 +308,6 @@ export async function updateAccount(
     ...buildFetchOpts(),
     method: "PATCH",
     body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error(await parseError(res));
-  return res.json();
-}
-
-export async function fetchNetwork(): Promise<NetworkStatus> {
-  const res = await fetch(`${API_BASE}/api/v1/integrations/network`, buildFetchOpts());
-  if (!res.ok) throw new Error(await parseError(res));
-  return res.json();
-}
-
-export async function connectNetwork(): Promise<NetworkStatus> {
-  const res = await fetch(`${API_BASE}/api/v1/integrations/network/connect`, {
-    ...buildFetchOpts(),
-    method: "POST",
-  });
-  if (!res.ok) throw new Error(await parseError(res));
-  return res.json();
-}
-
-export async function refreshNetwork(): Promise<NetworkStatus> {
-  const res = await fetch(`${API_BASE}/api/v1/integrations/network/refresh`, {
-    ...buildFetchOpts(),
-    method: "POST",
   });
   if (!res.ok) throw new Error(await parseError(res));
   return res.json();

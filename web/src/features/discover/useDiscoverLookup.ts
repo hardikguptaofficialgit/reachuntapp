@@ -18,7 +18,6 @@ type Args = {
   name: string;
   domain: string;
   busy: boolean;
-  canLookup: boolean;
   notifyOnComplete: boolean;
   onBusy: (v: boolean) => void;
   onError: (msg: string | null) => void;
@@ -41,12 +40,6 @@ export function useDiscoverLookup(args: Args) {
 
       const q = (text ?? buildLookupQuery(args.mode, args.query, args.name, args.domain)).trim();
       if (!q) return;
-      if (!args.canLookup) {
-        args.onError("Discovery is getting ready. Try again in a moment.");
-        args.onTabDiscover();
-        return;
-      }
-
       const parsed = await parseQuery(q);
       if (!parsed.ok) {
         args.onError(parsed.error);
@@ -107,7 +100,6 @@ export function useDiscoverLookup(args: Args) {
     },
     [
       args.busy,
-      args.canLookup,
       args.mode,
       args.query,
       args.name,

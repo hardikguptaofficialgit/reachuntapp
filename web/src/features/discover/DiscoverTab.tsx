@@ -23,7 +23,6 @@ type Props = {
   onDomainChange: (v: string) => void;
   onSubmit: () => void;
   busy: boolean;
-  canLookup: boolean;
   suggestions: string[];
   onMultiPaste: (text: string) => void;
   job: Job | null;
@@ -52,7 +51,6 @@ export function DiscoverTab({
   onDomainChange,
   onSubmit,
   busy,
-  canLookup,
   suggestions,
   onMultiPaste,
   job,
@@ -93,7 +91,6 @@ export function DiscoverTab({
           onDomainChange={onDomainChange}
           onSubmit={onSubmit}
           busy={busy}
-          disabled={!canLookup}
           suggestions={suggestions}
           onMultiPaste={onMultiPaste}
         />

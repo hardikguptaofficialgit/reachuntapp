@@ -17,8 +17,7 @@ html {
   padding-bottom: 0.65rem;
 }
 
-.shell__hero,
-.shell__net {
+.shell__hero {
   margin-bottom: 1rem;
 }
 
@@ -72,20 +71,6 @@ html {
 
 .activity-chart__bars {
   height: 4.5rem;
-}
-
-/* Network */
-.net {
-  padding: 0.55rem 0.8rem;
-  margin-bottom: 0;
-}
-
-.net--ok {
-  padding: 0.42rem 0.7rem;
-}
-
-.net__text {
-  font-size: 0.72rem;
 }
 
 /* Tabs */

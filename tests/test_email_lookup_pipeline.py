@@ -35,9 +35,9 @@ class EmailLookupPipelineTests(unittest.IsolatedAsyncioTestCase):
     async def asyncTearDown(self):
         self.env_patch.stop()
 
-    async def test_mailmeteor_fallback_when_custom_has_no_hit(self):
+    async def test_mailmeteor_primary_skips_custom_when_found(self):
         finder = FakeMailmeteor("jensen@nvidia.com", "found")
-        with patch("src.email_lookup.find_custom_email", return_value=CustomEmailResult()):
+        with patch("src.email_lookup.find_custom_email") as custom:
             email, status = await lookup_email(
                 finder,
                 "https://www.linkedin.com/in/jensenhuang/",
@@ -48,9 +48,10 @@ class EmailLookupPipelineTests(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(email, "jensen@nvidia.com")
         self.assertEqual(status, "found")
         self.assertEqual(finder.calls, 1)
+        custom.assert_not_called()
 
-    async def test_custom_hit_skips_mailmeteor(self):
-        finder = FakeMailmeteor("mailmeteor@nvidia.com", "found")
+    async def test_custom_fallback_runs_when_mailmeteor_has_no_hit(self):
+        finder = FakeMailmeteor("", "not_found")
         custom = CustomEmailResult(email="jensen.huang@nvidia.com", status="found_custom_public")
         with patch("src.email_lookup.find_custom_email", return_value=custom):
             email, status = await lookup_email(
@@ -62,16 +63,31 @@ class EmailLookupPipelineTests(unittest.IsolatedAsyncioTestCase):
             )
         self.assertEqual(email, "jensen.huang@nvidia.com")
         self.assertEqual(status, "found_custom_public")
-        self.assertEqual(finder.calls, 0)
+        self.assertEqual(finder.calls, 1)
 
-    async def test_custom_finder_timeout_falls_back_to_mailmeteor(self):
+    async def test_custom_fallback_can_rescue_mailmeteor_rate_limit(self):
+        finder = FakeMailmeteor("", "rate_limit")
+        custom = CustomEmailResult(email="jensen.huang@nvidia.com", status="found_custom_public")
+        with patch("src.email_lookup.find_custom_email", return_value=custom):
+            email, status = await lookup_email(
+                finder,
+                "https://www.linkedin.com/in/jensenhuang/",
+                rate_limit_wait_minutes=8,
+                name="Jensen Huang",
+                domain="nvidia.com",
+            )
+        self.assertEqual(email, "jensen.huang@nvidia.com")
+        self.assertEqual(status, "found_custom_public")
+        self.assertEqual(finder.calls, 1)
+
+    async def test_custom_finder_timeout_keeps_mailmeteor_status(self):
         async def slow_custom(*args, **kwargs):
             import asyncio
 
             await asyncio.sleep(5)
             return CustomEmailResult(email="slow@nvidia.com", status="found_custom_public")
 
-        finder = FakeMailmeteor("jensen@nvidia.com", "found")
+        finder = FakeMailmeteor("", "rate_limit")
         with patch("src.email_lookup.find_custom_email", side_effect=slow_custom):
             email, status = await lookup_email(
                 finder,
@@ -80,8 +96,8 @@ class EmailLookupPipelineTests(unittest.IsolatedAsyncioTestCase):
                 name="Jensen Huang",
                 domain="nvidia.com",
             )
-        self.assertEqual(email, "jensen@nvidia.com")
-        self.assertEqual(status, "found")
+        self.assertEqual(email, "")
+        self.assertEqual(status, "rate_limit")
         self.assertEqual(finder.calls, 1)
 
     async def test_mailmeteor_skip_cooldown_returns_rate_limit_without_waiting(self):

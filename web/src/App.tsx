@@ -19,7 +19,6 @@ import {
 } from "./components/CommandPalette";
 import { InsightsStrip } from "./components/InsightsStrip";
 import { LibraryPanel } from "./components/LibraryPanel";
-import { NetworkConnect } from "./components/NetworkConnect";
 import type { SearchMode } from "./components/SearchForm";
 import { AccountSettingsModal } from "./components/AccountSettingsModal";
 import { ShellBar } from "./components/ShellBar";
@@ -62,7 +61,6 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [job, setJob] = useState<Job | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [canLookup, setCanLookup] = useState(false);
   const [activity, setActivity] = useState<ActivityDay[]>([]);
   const [libraryKey, setLibraryKey] = useState(0);
   const [buildContext, setBuildContext] = useState<BuildContext | null>(null);
@@ -114,7 +112,6 @@ export default function App() {
     name,
     domain,
     busy,
-    canLookup,
     notifyOnComplete: settings.notifyOnComplete,
     onBusy: setBusy,
     onError: setError,
@@ -233,7 +230,7 @@ export default function App() {
       }
       if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
         e.preventDefault();
-        if (!busy && canLookup && tab === "discover") void runLookup();
+        if (!busy && tab === "discover") void runLookup();
       }
       if (e.key === "Escape") {
         if (paletteOpen || shortcutsOpen || accountOpen) {
@@ -255,7 +252,7 @@ export default function App() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [busy, canLookup, runLookup, tab, paletteOpen, shortcutsOpen, accountOpen]);
+  }, [busy, runLookup, tab, paletteOpen, shortcutsOpen, accountOpen]);
 
   if (!profile) {
     return (
@@ -293,7 +290,7 @@ export default function App() {
             <TabNav tab={tab} onChange={setTab} />
           </div>
           <div className="flow-item flow-item--soft" style={flow(2)}>
-            <WorkflowBar busy={busy} canLookup={canLookup} tab={tab} lastQuery={activeQuery} />
+            <WorkflowBar busy={busy} tab={tab} lastQuery={activeQuery} />
           </div>
         </header>
 
@@ -312,12 +309,6 @@ export default function App() {
             />
             <ActivityChart days={activity} />
           </section>
-        )}
-
-        {(tab === "discover" || tab === "bulk") && (
-          <div className="shell__net flow-item" style={flow(4)}>
-            <NetworkConnect onReadyChange={setCanLookup} />
-          </div>
         )}
 
         <main className="shell__main flow-item" style={flow(5)}>
@@ -341,7 +332,6 @@ export default function App() {
               onDomainChange={setDomain}
               onSubmit={() => void runLookup()}
               busy={busy}
-              canLookup={canLookup}
               suggestions={suggestions}
               onMultiPaste={routeToBulk}
               job={job}
@@ -402,7 +392,7 @@ export default function App() {
               <BulkPanel
                 key={bulkSeed.slice(0, 40)}
                 initialText={bulkSeed}
-                disabled={!canLookup}
+                disabled={false}
                 notify={settings.notifyOnComplete}
                 mailSettings={settings}
                 onDone={refreshLibrary}
