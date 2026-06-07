@@ -31,6 +31,7 @@ _STATUS_PUBLIC = {
     "found_risky": "risky",
     "found_custom_public": "verified",
     "found_custom_smtp": "verified",
+    "found_custom_pattern": "likely",
     "no_linkedin": "no_profile",
     "connection_error": "unavailable",
 }

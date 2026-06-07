@@ -38,6 +38,7 @@ class CustomEmailFinderTests(unittest.IsolatedAsyncioTestCase):
         os.environ["CUSTOM_EMAIL_PUBLIC_SEARCH"] = "true"
         os.environ["CUSTOM_EMAIL_SITE_SCRAPE"] = "false"
         os.environ["CUSTOM_EMAIL_PATTERN_SMTP"] = "false"
+        os.environ["CUSTOM_EMAIL_PATTERN_GUESS"] = "false"
 
     async def asyncTearDown(self):
         os.environ.clear()
@@ -94,6 +95,31 @@ class CustomEmailFinderTests(unittest.IsolatedAsyncioTestCase):
             result = await find_custom_email(name="Jensen Huang", domain="nvidia.com")
         self.assertEqual(result.email, "jensen.huang@nvidia.com")
         self.assertEqual(result.status, "found_custom_smtp")
+
+    async def test_accepts_known_domain_pattern_guess_when_enabled(self):
+        os.environ["CUSTOM_EMAIL_PUBLIC_SEARCH"] = "false"
+        os.environ["CUSTOM_EMAIL_PATTERN_GUESS"] = "true"
+        os.environ["CUSTOM_EMAIL_PATTERN_GUESS_MIN_CONFIDENCE"] = "80"
+        with patch(
+            "src.custom_email_finder.validate_email",
+            return_value=validation("jhuang@nvidia.com", verdict="likely", score=65),
+        ):
+            result = await find_custom_email(name="Jensen Huang", domain="nvidia.com")
+        self.assertEqual(result.email, "jhuang@nvidia.com")
+        self.assertEqual(result.status, "found_custom_pattern")
+        self.assertGreaterEqual(result.confidence, 80)
+
+    async def test_accepts_known_domain_first_name_pattern(self):
+        os.environ["CUSTOM_EMAIL_PUBLIC_SEARCH"] = "false"
+        os.environ["CUSTOM_EMAIL_PATTERN_GUESS"] = "true"
+        os.environ["CUSTOM_EMAIL_PATTERN_GUESS_MIN_CONFIDENCE"] = "80"
+        with patch(
+            "src.custom_email_finder.validate_email",
+            return_value=validation("sam@openai.com", verdict="likely", score=65),
+        ):
+            result = await find_custom_email(name="Sam Altman", domain="openai.com")
+        self.assertEqual(result.email, "sam@openai.com")
+        self.assertEqual(result.status, "found_custom_pattern")
 
 
 class InternalLinkDiscoveryTests(unittest.TestCase):
