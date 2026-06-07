@@ -21,6 +21,8 @@ const KNOWN_COMPANY_DOMAINS: Record<string, string> = {
   figma: "figma.com",
   openai: "openai.com",
   anthropic: "anthropic.com",
+  nvidia: "nvidia.com",
+  zscaler: "zscaler.com",
 };
 
 const TLDS = [".com", ".so", ".io", ".co", ".in", ".app", ".ai", ".dev"] as const;
@@ -165,6 +167,34 @@ export function parseQueryLocal(text: string): ParseResult {
   }
 
   const parts = raw.split(/\s+/);
+  if (parts.length >= 3 && parts[parts.length - 2]?.toLowerCase() === "at") {
+    const name = parts.slice(0, -2).join(" ").trim();
+    const companyOrDomain = parts[parts.length - 1] ?? "";
+    const domain = cleanDomain(companyOrDomain);
+    if (meaningfulPersonName(name) && DOMAIN_RE.test(domain)) {
+      return {
+        ok: true,
+        name,
+        domain,
+        company_only: false,
+        query_kind: "person",
+      };
+    }
+    if (meaningfulPersonName(name) && companyOrDomain) {
+      try {
+        return {
+          ok: true,
+          name,
+          domain: guessPrimaryDomain(companyOrDomain),
+          company_only: false,
+          query_kind: "person",
+        };
+      } catch {
+        // Keep parsing so the final error message stays simple.
+      }
+    }
+  }
+
   if (parts.length >= 2) {
     const maybe = cleanDomain(parts[parts.length - 1]);
     if (DOMAIN_RE.test(maybe)) {

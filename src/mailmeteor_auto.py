@@ -21,6 +21,10 @@ TOOL_URL = "https://mailmeteor.com/tools/linkedin-email-finder"
 ERROR_SNIPPET = "oops, it didn't work"
 
 
+def _log(message: str) -> None:
+    print(f"[mailmeteor] {message}", flush=True)
+
+
 def profile_dir(browser: str, profile_name: str | None = None) -> Path:
     base = Path(__file__).resolve().parent.parent / "data"
     folder = profile_name or f"{browser}-cdp-profile"
@@ -67,12 +71,15 @@ async def ensure_browser(
     profile_name: str | None = None,
 ) -> None:
     if cdp_ready(port):
+        _log(f"cdp_ready browser={browser} port={port}")
         return
+    _log(f"launch_browser browser={browser} port={port}")
     launch_browser_cdp(browser, port, profile_name)
     deadline = time.monotonic() + wait_seconds
     while time.monotonic() < deadline:
         if cdp_ready(port):
             await asyncio.sleep(1.5)
+            _log(f"cdp_ready browser={browser} port={port}")
             return
         await asyncio.sleep(0.5)
     raise RuntimeError(
@@ -105,6 +112,7 @@ class MailmeteorAuto:
 
     async def start(self, first_run_setup: bool = False) -> None:
         await ensure_browser(self.browser, self.port, profile_name=self.profile_name)
+        _log(f"connect_cdp browser={self.browser} port={self.port}")
         self._playwright = await async_playwright().start()
         self._browser = await self._playwright.chromium.connect_over_cdp(
             f"http://127.0.0.1:{self.port}"
@@ -185,6 +193,7 @@ class MailmeteorAuto:
         assert page is not None
         timeout_ms = timeout_ms or self._not_found_timeout_ms
         linkedin_url = linkedin_url.strip()
+        _log(f"search_start linkedin={linkedin_url} timeout_ms={timeout_ms}")
 
         inp = page.locator('input[name="linkedin-url"]')
         btn = page.get_by_role("button", name=re.compile(r"find email", re.I))
@@ -205,6 +214,7 @@ class MailmeteorAuto:
                 await page.goto(url, wait_until="domcontentloaded", timeout=60000)
 
         if await btn.count():
+            _log("submit_find_email")
             await btn.click()
 
         deadline = time.monotonic() + timeout_ms / 1000
@@ -213,9 +223,11 @@ class MailmeteorAuto:
             await asyncio.sleep(poll)
             email, status = await self._extract_email()
             if status in ("found", "error", "rate_limit"):
+                _log(f"search_done status={status} found={bool(email)}")
                 return email, status
             if await page.locator(".skeleton-loader").count() > 0:
                 continue
+        _log("search_done status=not_found found=False")
         return "", "not_found"
 
     def _is_connection_error(self, exc: BaseException) -> bool:
@@ -244,6 +256,7 @@ class MailmeteorAuto:
                 email, status = await self.find_email(linkedin_url)
                 if status == "rate_limit":
                     if skip_cooldown:
+                        _log("rate_limit skip_cooldown=True")
                         return "", "rate_limit"
                     wait_s = int(rate_limit_wait_minutes * 60)
                     print(

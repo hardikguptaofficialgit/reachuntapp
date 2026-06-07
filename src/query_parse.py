@@ -123,6 +123,30 @@ def parse_person_query(text: str) -> PersonQuery:
             )
 
     parts = raw.split()
+    if len(parts) >= 3 and parts[-2].lower() == "at":
+        name = " ".join(parts[:-2]).strip()
+        company_or_domain = " ".join(parts[-1:]).strip()
+        domain = clean_domain(company_or_domain)
+        if meaningful_person_name(name) and DOMAIN_RE.match(domain):
+            return PersonQuery(
+                name=name,
+                domain=domain,
+                raw=raw,
+                query_kind="person",
+            )
+        if meaningful_person_name(name) and company_or_domain:
+            try:
+                inferred_domain = guess_primary_domain(company_or_domain)
+            except ValueError:
+                inferred_domain = ""
+            if inferred_domain and DOMAIN_RE.match(inferred_domain):
+                return PersonQuery(
+                    name=name,
+                    domain=inferred_domain,
+                    raw=raw,
+                    query_kind="person",
+                )
+
     if len(parts) >= 2:
         maybe_domain = clean_domain(parts[-1])
         if DOMAIN_RE.match(maybe_domain):

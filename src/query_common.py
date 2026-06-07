@@ -26,6 +26,8 @@ KNOWN_COMPANY_DOMAINS: dict[str, str] = {
     "figma": "figma.com",
     "openai": "openai.com",
     "anthropic": "anthropic.com",
+    "nvidia": "nvidia.com",
+    "zscaler": "zscaler.com",
 }
 
 

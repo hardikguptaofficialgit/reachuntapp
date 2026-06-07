@@ -27,6 +27,10 @@ from src.lookup_result import LookupResult
 from src.email_validation import validate_email
 
 
+def _log(message: str) -> None:
+    print(f"[lookup] {message}", flush=True)
+
+
 class WebLookupService:
     def __init__(
         self,
@@ -102,10 +106,16 @@ class WebLookupService:
             hit = self.db.get_shared_cached_lookup(cache_key)
             source = "shared_cache_hit"
         if not hit or not hit.get("email"):
+            _log(f"cache_miss user={user_id} query={text!r}")
             return None
         validation = await asyncio.to_thread(validate_email, hit["email"])
         if validation.verdict in {"invalid", "undeliverable"} or validation.role_account:
+            _log(
+                f"cache_rejected source={source} user={user_id} email={hit['email']} "
+                f"verdict={validation.verdict} role={validation.role_account}"
+            )
             return None
+        _log(f"cache_hit source={source} user={user_id} query={text!r} email={hit['email']}")
         return LookupResult(
             status="completed",
             query=text,
@@ -126,15 +136,23 @@ class WebLookupService:
         )
 
     async def run_query(self, user_id: str, text: str) -> LookupResult:
+        _log(f"request user={user_id} query={text!r}")
         cached = await self._try_cache_hit(user_id, text)
         if cached:
+            _log(f"done user={user_id} query={text!r} source=cache email_found=True")
             return cached
         try:
-            return await asyncio.wait_for(
+            result = await asyncio.wait_for(
                 self._run_phased(user_id, text),
                 timeout=LOOKUP_MAX_SEC,
             )
+            _log(
+                f"done user={user_id} query={text!r} status={result.status} "
+                f"email_found={bool(result.email)} email_status={result.email_status or ''}"
+            )
+            return result
         except TimeoutError:
+            _log(f"timeout user={user_id} query={text!r} max_sec={LOOKUP_MAX_SEC}")
             return LookupResult(
                 status="failed",
                 query=text,
@@ -163,6 +181,7 @@ class WebLookupService:
         try:
             pq = parse_person_query(text)
         except ValueError as exc:
+            _log(f"parse_error query={text!r} error={str(exc)!r}")
             return LookupResult(
                 status="failed",
                 query=text,
@@ -171,6 +190,10 @@ class WebLookupService:
             )
 
         steps.append("parsed")
+        _log(
+            f"parsed query={text!r} name={pq.name!r} domain={pq.domain!r} "
+            f"company_only={pq.company_only}"
+        )
 
         if user_id != "local":
             if WEB_LINKEDIN_CLIENT_MODE:
@@ -212,8 +235,10 @@ class WebLookupService:
                     title_hint="",
                 )
                 steps.append("profile_cache")
+                _log(f"profile_cache_hit query={text!r} url={person.linkedin_url}")
             elif WEB_LINKEDIN_CLIENT_MODE and user_id != "local":
                 steps.append("linkedin_search")
+                _log(f"profile_search_ddg_start query={text!r}")
                 person = await resolve_person_search_ddg_only(pq)
             else:
                 if user_id == "local":
@@ -229,6 +254,7 @@ class WebLookupService:
                     session = await self.linkedin_manager.get_browser(user_id)
 
                 steps.append("linkedin_search")
+                _log(f"profile_search_browser_start query={text!r}")
 
                 async def do_search():
                     if local_browser:
@@ -242,6 +268,7 @@ class WebLookupService:
                 else:
                     person = await do_search()
         except Exception as exc:
+            _log(f"profile_search_error query={text!r} error={str(exc)!r}")
             result.status = "failed"
             result.message = sanitize_message(str(exc))
             result.steps = steps + ["linkedin_error"]
@@ -251,6 +278,7 @@ class WebLookupService:
                 await local_browser.close()
 
         if not person:
+            _log(f"profile_not_found query={text!r}")
             result.status = "completed"
             result.message = "No matching professional profile found."
             result.email_status = "no_profile"
@@ -259,6 +287,7 @@ class WebLookupService:
 
         result.founder_name = person.name
         result.linkedin_url = person.linkedin_url
+        _log(f"profile_found query={text!r} name={person.name!r} url={person.linkedin_url}")
         if pq.company_only or not (result.name or "").strip():
             result.name = person.name
         result.steps = steps + ["linkedin_found"]
@@ -267,6 +296,10 @@ class WebLookupService:
     async def _email_phase(self, result: LookupResult) -> LookupResult:
         steps = list(result.steps)
         steps.append("email_lookup")
+        _log(
+            f"email_phase_start query={result.query!r} name={(result.founder_name or result.name)!r} "
+            f"domain={result.domain!r} linkedin={result.linkedin_url}"
+        )
         self.schedule_prewarm()
         resolver = await self._email_resolver()
         try:
@@ -282,6 +315,7 @@ class WebLookupService:
                 timeout=MAILMETEOR_LOOKUP_BUDGET_SEC,
             )
         except TimeoutError:
+            _log(f"email_phase_timeout query={result.query!r} budget_sec={MAILMETEOR_LOOKUP_BUDGET_SEC}")
             result.status = "completed"
             result.email = ""
             result.email_status = public_status("not_found")
@@ -289,14 +323,20 @@ class WebLookupService:
             result.steps = steps + ["no_email"]
             return result
         except Exception as exc:
+            _log(f"email_phase_error query={result.query!r} error={str(exc)!r}")
             result.status = "failed"
             result.message = sanitize_message(str(exc))
             result.steps = steps + ["email_error"]
             return result
         result.email = email or ""
         result.status = "completed"
+        _log(f"email_phase_done query={result.query!r} raw_status={email_status} found={bool(email)}")
         if email:
             validation = await asyncio.to_thread(validate_email, email)
+            _log(
+                f"email_validation query={result.query!r} email={email} "
+                f"verdict={validation.verdict} score={validation.score} role={validation.role_account}"
+            )
             result.email_confidence = validation.score
             result.email_validation = validation.public_dict()
             if validation.verdict in {"invalid", "undeliverable"} or validation.role_account:
