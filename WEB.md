@@ -1,28 +1,48 @@
 # Reachunt Web App
 
-Reachunt has two paths:
+The web app has two parts:
 
-- Web app: Linkit auth, DuckDuckGo profile discovery, Mailmeteor email lookup.
-- Batch pipeline: unchanged; still uses the startup scripts and their own browser ports.
-
-## Product Flow
-
-1. User signs in with Linkit.
-2. User enters `Full Name - company.com` or a company/domain.
-3. API uses DuckDuckGo (`ddgs`) to find public LinkedIn profile URLs.
-4. API sends the LinkedIn profile URL to Mailmeteor on the droplet.
-5. UI shows the email result.
-
-There is no production LinkedIn login step for users, and the droplet does not launch per-user LinkedIn browsers.
+- FastAPI backend in `api/`
+- React/Vite frontend in `web/`
 
 ## Local Dev
 
+Install dependencies from the repo root:
+
 ```powershell
-cd C:\Users\hardi\yc-founder-enrichment
 pip install -r requirements.txt
 playwright install chromium
-.\run-api.ps1
-.\run-web-dev.ps1
+
+cd web
+npm install
+cd ..
+```
+
+Copy the example env:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+For local unauthenticated testing, keep:
+
+```env
+REQUIRE_AUTH=false
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+WEB_BROWSER=brave
+```
+
+Start the API:
+
+```powershell
+python -m api.server --host 127.0.0.1 --port 8000
+```
+
+Start the frontend:
+
+```powershell
+cd web
+npm run dev
 ```
 
 Open:
@@ -31,54 +51,63 @@ Open:
 http://localhost:5173
 ```
 
-For auth, Linkit must be reachable at `LINKIT_APP_URL`.
+## Production-Style Local Run
+
+```powershell
+cd web
+npm run build
+cd ..
+python -m api.server --host 127.0.0.1 --port 8000
+```
+
+Open:
+
+```text
+http://127.0.0.1:8000
+```
 
 ## Important Env
 
 ```env
 APP_TITLE=Reachunt
-REQUIRE_AUTH=true
-LINKIT_APP_URL=https://linkitapp.in
-LINKIT_SOURCE=founder-email
-CORS_ORIGINS=https://reachunt.arclabs.page
+REQUIRE_AUTH=false
+APP_SECRET=change-me
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
 WEB_LINKEDIN_CLIENT_MODE=true
 DDG_SEARCH_ENABLED=true
-EMAIL_API_FIRST=false
-WEB_BROWSER=chrome
+WEB_BROWSER=brave
 WEB_MAILMETEOR_PORT=9224
-DATABASE_PATH=/home/deploy/anyone-email/data/webapp.db
+LOOKUP_DAILY_LIMIT=3
 ```
 
-Keep `LINKIT_SOURCE=founder-email`; Linkit uses this compatibility slug for authorization.
+For authenticated deployments, set `REQUIRE_AUTH=true` and configure Linkit/Firebase values in `.env`.
+
+For the current public frontend at `https://reachunt.arclabs.page`, use a droplet API domain such as `https://apimail.arclabs.page` and set:
+
+```env
+REQUIRE_AUTH=true
+APP_SECRET=<strong-random-secret>
+CORS_ORIGINS=https://reachunt.arclabs.page
+COOKIE_DOMAIN=.arclabs.page
+COOKIE_SECURE=true
+COOKIE_SAMESITE=none
+DATABASE_PATH=/var/lib/reachunt/webapp.db
+LOOKUP_DAILY_LIMIT=3
+```
+
+On Cloudflare Pages, set:
+
+```env
+VITE_API_BASE=https://apimail.arclabs.page
+VITE_LINKIT_APP_URL=https://linkitapp.in
+```
 
 ## Ports
 
 | Service | Port |
-|---------|------|
+| --- | --- |
 | Web API | 8000 |
-| Web Mailmeteor Chrome | 9224 |
-| Batch Mailmeteor | 9222 |
-| Batch LinkedIn | 9223 |
-
-Production no longer needs `WEB_LINKEDIN_PORT_BASE` for per-user LinkedIn browsers when `WEB_LINKEDIN_CLIENT_MODE=true`.
-
-## Deploy Refresh
-
-On the droplet:
-
-```bash
-cd /home/deploy/anyone-email
-git pull
-source .venv/bin/activate
-pip install -r requirements.txt -q
-sudo systemctl restart anyone-email
-```
-
-Health:
-
-```bash
-curl -s https://apimail.arclabs.page/api/v1/health
-curl -s https://apimail.arclabs.page/api/v1/ready
-```
-
-Cloudflare Pages rebuilds the frontend from `web/`.
+| Vite dev server | 5173 |
+| Web Mailmeteor browser | 9224 |
+| Batch Mailmeteor browser | 9222 |
+| Batch LinkedIn browser | 9223 |

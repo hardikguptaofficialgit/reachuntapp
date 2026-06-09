@@ -135,7 +135,7 @@ async def run_auto(args: argparse.Namespace) -> None:
     else:
         print(
             f"\nAUTO MODE: {browser.title()} + Mailmeteor.\n"
-            "Tip: use .\\run-emails-continuous.ps1 to avoid manual stops on rate limit.\n",
+            "Tip: use --continuous to add batch cooldowns for long runs.\n",
             flush=True,
         )
 
@@ -237,7 +237,7 @@ def main() -> None:
     p.add_argument(
         "--fast",
         action="store_true",
-        help="Fast run, no scheduled pauses (default for run-emails.ps1)",
+        help="Fast run with no scheduled pauses",
     )
     p.add_argument(
         "--rate-limit-wait",

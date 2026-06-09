@@ -23,7 +23,7 @@ async def main() -> None:
         email, status = await finder.find_email(args.url)
         print(f"status={status} email={email or '(none)'}")
         if status == "error":
-            print("Mailmeteor returned an error. Run .\\run-warmup.ps1 and complete Cloudflare.")
+            print("Mailmeteor returned an error. Rerun with --connect-chrome or complete the browser challenge.")
     finally:
         await finder.close()
 

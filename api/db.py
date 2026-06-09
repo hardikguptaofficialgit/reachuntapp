@@ -661,6 +661,20 @@ class Database:
             row = cur.fetchone()
             return int(row["n"] or 0) if row else 0
 
+    def count_lookup_jobs_today(self, user_id: str) -> int:
+        """Count lookup jobs created today in UTC, including queued/running jobs."""
+        with self.session() as conn:
+            cur = conn.execute(
+                """
+                SELECT COUNT(*) AS n FROM lookup_jobs
+                WHERE user_id = ?
+                  AND substr(created_at, 1, 10) = substr(datetime('now'), 1, 10)
+                """,
+                (user_id,),
+            )
+            row = cur.fetchone()
+            return int(row["n"] or 0) if row else 0
+
     def recent_queries(self, user_id: str, limit: int = 8) -> list[str]:
         with self.session() as conn:
             cur = conn.execute(

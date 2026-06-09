@@ -20,8 +20,6 @@ Install these before starting:
 - Git
 - Brave or Chrome
 
-On Windows, run the commands below in PowerShell. On macOS/Linux, use the same Python/npm commands and run the Python entrypoints directly instead of the `.ps1` helper scripts.
-
 ## Clone And Install
 
 ```powershell
@@ -37,6 +35,12 @@ playwright install chromium
 cd web
 npm install
 cd ..
+```
+
+On macOS/Linux, activate the environment with:
+
+```bash
+source .venv/bin/activate
 ```
 
 ## Configure Environment
@@ -61,18 +65,60 @@ Use `WEB_BROWSER=chrome` if you do not have Brave installed.
 
 For authenticated production-like usage, keep `REQUIRE_AUTH=true` and configure the Linkit/Firebase values in `.env`. Do not commit `.env`.
 
+## Public Deployment Shape
+
+The frontend can stay on Cloudflare Pages:
+
+```text
+https://reachunt.arclabs.page
+```
+
+Run the backend on your droplet behind an API domain, for example:
+
+```text
+https://apimail.arclabs.page
+```
+
+Set these backend env values on the droplet:
+
+```env
+REQUIRE_AUTH=true
+APP_SECRET=<strong-random-secret>
+LINKIT_APP_URL=https://linkitapp.in
+CORS_ORIGINS=https://reachunt.arclabs.page
+COOKIE_DOMAIN=.arclabs.page
+COOKIE_SECURE=true
+COOKIE_SAMESITE=none
+DATABASE_PATH=/var/lib/reachunt/webapp.db
+WEB_LINKEDIN_CLIENT_MODE=true
+DDG_SEARCH_ENABLED=true
+WEB_BROWSER=chrome
+LOOKUP_DAILY_LIMIT=3
+RATE_LIMIT_LOOKUPS_PER_MIN=20
+```
+
+Set the frontend build env on Cloudflare Pages:
+
+```env
+VITE_API_BASE=https://apimail.arclabs.page
+VITE_LINKIT_APP_URL=https://linkitapp.in
+```
+
+`LOOKUP_DAILY_LIMIT=3` gives each authenticated user three lookup jobs per UTC day. Set it to `0` only if you want unlimited lookups.
+
 ## Run The Web App Locally
 
 Start the API in one terminal:
 
 ```powershell
-.\run-api-dev.ps1
+python -m api.server --host 127.0.0.1 --port 8000
 ```
 
 Start the web UI in a second terminal:
 
 ```powershell
-.\run-web-dev.ps1
+cd web
+npm run dev
 ```
 
 Open:
@@ -88,7 +134,10 @@ The Vite dev server proxies `/api` requests to `http://127.0.0.1:8000`.
 To build the frontend and serve it from the FastAPI app:
 
 ```powershell
-.\run-web-prod.ps1
+cd web
+npm run build
+cd ..
+python -m api.server --host 127.0.0.1 --port 8000
 ```
 
 Then open:

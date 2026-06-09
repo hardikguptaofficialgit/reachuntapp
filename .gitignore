@@ -51,3 +51,4 @@ scripts/mailmeteor_body.txt
 scripts/mailmeteor_debug/
 scripts/*network*.png
 scripts/*debug*/
+scripts/*result*.txt

@@ -63,7 +63,6 @@ def sanitize_message(text: str) -> str:
         "9222",
         "9223",
         "9224",
-        "run-linkedin",
         "targetclosed",
     ):
         msg = re.sub(term, "", msg, flags=re.I)

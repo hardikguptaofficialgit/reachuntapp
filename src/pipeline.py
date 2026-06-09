@@ -28,7 +28,7 @@ FIELDNAMES = [
     "notes",
 ]
 
-DEFAULT_INPUT = Path(r"C:\Users\hardi\Downloads\startups.xlsx")
+DEFAULT_INPUT = Path(__file__).resolve().parent.parent / "data" / "yc_startups.xlsx"
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "output" / "results.csv"
 PROGRESS_PATH = Path(__file__).resolve().parent.parent / "data" / "progress.json"
 
@@ -109,7 +109,7 @@ async def run_pipeline(args: argparse.Namespace) -> None:
         elif not args.connect_chrome:
             print(
                 "Mailmeteor: Chrome will open for each lookup.\n"
-                "First time? Run:  .\\run-warmup.ps1\n",
+                "First time? Use --warmup-mailmeteor to complete any browser challenge.\n",
                 flush=True,
             )
 

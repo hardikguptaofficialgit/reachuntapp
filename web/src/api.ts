@@ -83,7 +83,15 @@ export interface UserProfile {
   user: { id: string; email: string };
   account: UserAccount;
   integration: { network_connected: boolean; connected_at: string | null };
-  stats: { lookups: number; verified: number; hit_rate: number; today: number };
+  stats: {
+    lookups: number;
+    verified: number;
+    hit_rate: number;
+    today: number;
+    daily_limit?: number;
+    daily_remaining?: number;
+    daily_unlimited?: boolean;
+  };
   suggestions?: string[];
   avatar_styles?: string[];
 }
@@ -245,6 +253,10 @@ export interface QueueLimits {
   queue_max_per_user: number;
   job_status_batch_max: number;
   job_worker_count: number;
+  lookup_daily_limit?: number;
+  lookup_daily_used?: number;
+  lookup_daily_remaining?: number;
+  lookup_daily_unlimited?: boolean;
   queue: {
     total: number;
     queued: number;

@@ -3,6 +3,33 @@
 from __future__ import annotations
 
 import os
+from pathlib import Path
+
+
+def _load_dotenv() -> None:
+    path = Path(__file__).resolve().parent.parent / ".env"
+    if not path.exists():
+        return
+
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if not key or key in os.environ:
+            continue
+
+        if (value.startswith('"') and value.endswith('"')) or (
+            value.startswith("'") and value.endswith("'")
+        ):
+            value = value[1:-1]
+        os.environ[key] = value
+
+
+_load_dotenv()
 
 # Batch pipeline keeps 9223 (LinkedIn) and 9222 (Mailmeteor) - do not use here.
 WEB_MAILMETEOR_PORT = int(os.environ.get("WEB_MAILMETEOR_PORT", "9224"))
@@ -24,6 +51,7 @@ SHARED_LOOKUP_CACHE_TTL_DAYS = max(
 # Abuse protection (per authenticated user)
 RATE_LIMIT_LOOKUPS_PER_MIN = max(1, int(os.environ.get("RATE_LIMIT_LOOKUPS_PER_MIN", "20")))
 RATE_LIMIT_WINDOW_SEC = float(os.environ.get("RATE_LIMIT_WINDOW_SEC", "60"))
+LOOKUP_DAILY_LIMIT = max(0, int(os.environ.get("LOOKUP_DAILY_LIMIT", "3")))
 
 # Browser concurrency (Mailmeteor stays serialized; LinkedIn can run in parallel per user)
 LINKEDIN_MAX_CONCURRENT = max(1, int(os.environ.get("LINKEDIN_MAX_CONCURRENT", "4")))

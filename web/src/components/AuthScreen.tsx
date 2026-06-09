@@ -39,7 +39,7 @@ export function AuthScreen() {
   }, []);
 
   const displayError =
-    authError ?? (apiDown ? "API not running - start with .\\run-api.ps1 in the project folder." : null);
+    authError ?? (apiDown ? "API not running - start it with python -m api.server." : null);
 
   return (
     <>

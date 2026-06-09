@@ -16,7 +16,7 @@ from src.email_lookup import lookup_email
 from src.linkedin_founders import search_founders, setup_linkedin_login
 from src.mailmeteor_auto import MailmeteorAuto
 
-DEFAULT_INPUT = Path(r"C:\Users\hardi\Downloads\startupsnew.xlsx")
+DEFAULT_INPUT = Path(__file__).resolve().parent.parent / "data" / "startups.xlsx"
 DEFAULT_OUTPUT = Path(__file__).resolve().parent.parent / "output" / "startupsnew_results.csv"
 PROGRESS_PATH = Path(__file__).resolve().parent.parent / "data" / "startupsnew_progress.json"
 
@@ -240,7 +240,11 @@ async def run_login_only(args: argparse.Namespace) -> None:
     page = await browser.start("https://www.linkedin.com/feed/")
     await setup_linkedin_login(page)
     await browser.close()
-    print("\nLinkedIn login saved. Next run: .\\run-linkedin.ps1\n", flush=True)
+    print(
+        "\nLinkedIn login saved. Next run: "
+        "python run_startups.py --input data\\startups.xlsx --linkedin-only\n",
+        flush=True,
+    )
 
 
 async def run_all(args: argparse.Namespace) -> None:

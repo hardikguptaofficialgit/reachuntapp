@@ -9,10 +9,12 @@ from api.config import (
     BULK_MAX_QUERIES,
     JOB_STATUS_BATCH_MAX,
     JOB_WORKER_COUNT,
+    LOOKUP_DAILY_LIMIT,
     QUEUE_MAX_PER_USER,
     WEB_LINKEDIN_CLIENT_MODE,
 )
-from api.deps import get_linkedin, get_store
+from api.db import Database
+from api.deps import get_db, get_linkedin, get_store
 from api.job_utils import job_payload
 from api.jobs import JobStore, QueueFullError
 from api.rate_limit import lookup_limiter
@@ -30,16 +32,48 @@ from src.query_parse import parse_person_query
 router = APIRouter(tags=["lookups"])
 
 
+def _lookup_quota(db: Database, user: dict) -> dict[str, int | bool]:
+    if user.get("is_dev") or LOOKUP_DAILY_LIMIT == 0:
+        return {"limit": LOOKUP_DAILY_LIMIT, "used": 0, "remaining": 999_999, "unlimited": True}
+    used = db.count_lookup_jobs_today(user["id"])
+    remaining = max(0, LOOKUP_DAILY_LIMIT - used)
+    return {
+        "limit": LOOKUP_DAILY_LIMIT,
+        "used": used,
+        "remaining": remaining,
+        "unlimited": False,
+    }
+
+
+def _require_lookup_quota(db: Database, user: dict, requested: int = 1) -> dict[str, int | bool]:
+    quota = _lookup_quota(db, user)
+    if not quota["unlimited"] and int(quota["remaining"]) < requested:
+        raise HTTPException(
+            status_code=429,
+            detail=(
+                f"Daily lookup limit reached ({quota['used']}/{quota['limit']}). "
+                "Try again tomorrow."
+            ),
+        )
+    return quota
+
+
 @router.get("/api/v1/config/limits")
 async def config_limits(
     user: dict = Depends(get_current_user),
     store: JobStore = Depends(get_store),
+    db: Database = Depends(get_db),
 ):
+    quota = _lookup_quota(db, user)
     return {
         "bulk_max_queries": BULK_MAX_QUERIES,
         "queue_max_per_user": QUEUE_MAX_PER_USER,
         "job_status_batch_max": JOB_STATUS_BATCH_MAX,
         "job_worker_count": JOB_WORKER_COUNT,
+        "lookup_daily_limit": quota["limit"],
+        "lookup_daily_used": quota["used"],
+        "lookup_daily_remaining": quota["remaining"],
+        "lookup_daily_unlimited": quota["unlimited"],
         "queue": store.stats(user["id"]),
     }
 
@@ -57,6 +91,7 @@ async def create_bulk_lookup(
     body: BulkLookupRequest,
     user: dict = Depends(get_current_user),
     store: JobStore = Depends(get_store),
+    db: Database = Depends(get_db),
     linkedin: LinkedInSessionManager = Depends(get_linkedin),
 ):
     await lookup_limiter.check(user["id"], label="lookups")
@@ -77,7 +112,9 @@ async def create_bulk_lookup(
     if not cleaned:
         raise HTTPException(status_code=400, detail="No valid queries in batch.")
 
-    batch = cleaned[:BULK_MAX_QUERIES]
+    quota = _require_lookup_quota(db, user)
+    allowed_by_quota = int(quota["remaining"]) if not quota["unlimited"] else BULK_MAX_QUERIES
+    batch = cleaned[: min(BULK_MAX_QUERIES, allowed_by_quota)]
     try:
         job_ids = store.create_bulk(user["id"], batch)
     except QueueFullError as exc:
@@ -105,9 +142,11 @@ async def create_lookup(
     body: LookupRequest,
     user: dict = Depends(get_current_user),
     store: JobStore = Depends(get_store),
+    db: Database = Depends(get_db),
     linkedin: LinkedInSessionManager = Depends(get_linkedin),
 ):
     await lookup_limiter.check(user["id"], label="lookups")
+    _require_lookup_quota(db, user)
     if not user.get("is_dev") and not WEB_LINKEDIN_CLIENT_MODE:
         if not await linkedin.is_connected(user["id"]):
             raise HTTPException(
