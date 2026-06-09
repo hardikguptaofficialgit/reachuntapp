@@ -263,3 +263,7 @@ If LinkedIn or Mailmeteor rate-limits you, slow the batch run down:
 ```powershell
 python run_startups.py --input "C:\path\to\startups.xlsx" --output "output\results.csv" --linkedin-delay 8 --delay 6 --jitter 4
 ```
+
+## License
+
+MIT License. See [LICENSE](LICENSE).
