@@ -1,22 +1,53 @@
-data/yc_companies.json
-data/progress.json
-data/chrome-mailmeteor-profile/
-data/chrome-cdp-profile/
-data/brave-cdp-profile/
-data/brave-linkedin-profile/
-output/
+# Local editor / assistant state
+.cursor/
+.vscode/
+.idea/
+
+# Secrets and machine-local configuration
+.env
+.env.*
+!.env.example
+web/.env
+web/.env.*
+!web/.env.example
+*.env.local
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
 .venv/
+venv/
+
+# Node / web build output
 web/node_modules/
 web/dist/
-.env
-web/.env
-web/.env.local
-*.env.local
-data/webapp.db
+
+# Generated data, databases, and exports
+data/*.json
+!data/.gitkeep
+data/*.csv
+data/*.xlsx
+data/*.xls
+data/*.db
+data/*.sqlite
+data/*.sqlite3
 data/web-linkedin-*/
+output/
+*.csv
+*.xlsx
+*.xls
+
+# Browser/session profiles
+data/*profile*/
+data/*cdp-profile*/
 data/web-mailmeteor-cdp-profile/
+
+# Debug captures and temporary probe output
+*.jsonl
 scripts/mailmeteor_body.txt
 scripts/mailmeteor_debug/
-data/brave-linkedin-cdp-profile/
+scripts/*network*.png
+scripts/*debug*/
