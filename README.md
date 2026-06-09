@@ -1,78 +1,216 @@
-# Startups pipeline (LinkedIn + Mailmeteor)
+# Reachunt
 
-New workflow for **`startupsnew.xlsx`** — not YC.
+Reachunt is a local-first founder/contact enrichment tool. It can run as a web app for single or bulk lookups, and it also includes a batch Excel pipeline for finding founder LinkedIn profiles and emails.
 
-## Input / output
+The project uses:
 
-| | Path |
-|---|------|
-| Excel | `C:\Users\hardi\Downloads\startupsnew.xlsx` |
-| CSV | `output\startupsnew_results.csv` |
+- Python + FastAPI for the API
+- React + Vite for the web UI
+- Playwright for browser automation
+- DuckDuckGo/DDGS for public profile discovery
+- Mailmeteor's public LinkedIn email finder flow for email lookup
 
-Columns: `startup_name`, `founder_name`, `linkedin_url`, `email`, `email_status`, `notes`
+## Prerequisites
 
-## Setup (once)
+Install these before starting:
+
+- Python 3.10 or newer
+- Node.js 20 or newer
+- npm
+- Git
+- Brave or Chrome
+
+On Windows, run the commands below in PowerShell. On macOS/Linux, use the same Python/npm commands and run the Python entrypoints directly instead of the `.ps1` helper scripts.
+
+## Clone And Install
 
 ```powershell
-cd C:\Users\hardi\yc-founder-enrichment
+git clone <your-repo-url>
+cd yc-founder-enrichment
+
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
 pip install -r requirements.txt
+playwright install chromium
+
+cd web
+npm install
+cd ..
+```
+
+## Configure Environment
+
+Copy the example environment file:
+
+```powershell
+Copy-Item .env.example .env
+```
+
+For simple local testing without Linkit/Firebase auth, set:
+
+```env
+REQUIRE_AUTH=false
+APP_SECRET=local-dev-secret
+CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+DDG_SEARCH_ENABLED=true
+WEB_BROWSER=brave
+```
+
+Use `WEB_BROWSER=chrome` if you do not have Brave installed.
+
+For authenticated production-like usage, keep `REQUIRE_AUTH=true` and configure the Linkit/Firebase values in `.env`. Do not commit `.env`.
+
+## Run The Web App Locally
+
+Start the API in one terminal:
+
+```powershell
+.\run-api-dev.ps1
+```
+
+Start the web UI in a second terminal:
+
+```powershell
+.\run-web-dev.ps1
+```
+
+Open:
+
+```text
+http://localhost:5173
+```
+
+The Vite dev server proxies `/api` requests to `http://127.0.0.1:8000`.
+
+## Production-Style Local Run
+
+To build the frontend and serve it from the FastAPI app:
+
+```powershell
+.\run-web-prod.ps1
+```
+
+Then open:
+
+```text
+http://127.0.0.1:8000
+```
+
+## Batch Excel Pipeline
+
+The batch pipeline reads an Excel file, searches LinkedIn for founders, and writes a CSV output.
+
+Your Excel file should contain a startup/company column. By default the code looks for:
+
+```text
+Startup Name
+```
+
+Run a small LinkedIn-only test first:
+
+```powershell
+python run_startups.py --input "C:\path\to\startups.xlsx" --output "output\results.csv" --linkedin-only --limit 10
+```
+
+If your column has a different name:
+
+```powershell
+python run_startups.py --input "C:\path\to\startups.xlsx" --column "Company" --output "output\results.csv" --linkedin-only --limit 10
+```
+
+To save a local LinkedIn browser session:
+
+```powershell
+python run_startups.py --login-only
+```
+
+To run LinkedIn discovery:
+
+```powershell
+python run_startups.py --input "C:\path\to\startups.xlsx" --output "output\results.csv" --linkedin-only
+```
+
+To run email lookup for rows that already have LinkedIn URLs:
+
+```powershell
+python run_startups.py --output "output\results.csv" --emails-only
+```
+
+To run both phases:
+
+```powershell
+python run_startups.py --input "C:\path\to\startups.xlsx" --output "output\results.csv"
+```
+
+The CSV output columns are:
+
+```text
+startup_name, founder_name, linkedin_url, email, email_status, notes
+```
+
+Generated files under `output/` and local progress files under `data/` are ignored by git.
+
+## Useful Commands
+
+Run API directly:
+
+```powershell
+python -m api.server --host 127.0.0.1 --port 8000
+```
+
+Build frontend:
+
+```powershell
+cd web
+npm run build
+```
+
+Run tests:
+
+```powershell
+pytest
+```
+
+## Ports
+
+| Service | Default Port |
+| --- | --- |
+| API | 8000 |
+| Web dev server | 5173 |
+| Web Mailmeteor browser | 9224 |
+| Batch Mailmeteor browser | 9222 |
+| Batch LinkedIn browser | 9223 |
+
+## Local Files Not Committed
+
+The repo intentionally ignores local/private artifacts:
+
+- `.env` and other local env files
+- `.cursor/` editor/chat state
+- Excel/CSV exports
+- `output/`
+- generated `data/*.json`
+- local databases
+- browser/session profiles
+- network/debug captures
+
+This keeps the public repo usable without leaking personal runs, browser sessions, or generated contact data.
+
+## Troubleshooting
+
+If the API cannot launch a browser, install Playwright again:
+
+```powershell
 playwright install chromium
 ```
 
-## Steps
+If the web app cannot reach the API, confirm the API is running on port `8000` and the frontend is running on port `5173`.
 
-### 1) Log into LinkedIn (once)
+If batch lookup cannot find your spreadsheet column, pass the correct column name with `--column`.
 
-```powershell
-.\run-linkedin-setup.ps1
-```
-
-Brave opens → log into LinkedIn → press **Enter** in PowerShell.
-
-Uses profile `data\brave-linkedin-profile` (port **9223**).
-
-### 2) Get founder LinkedIn URLs (530 startups)
+If LinkedIn or Mailmeteor rate-limits you, slow the batch run down:
 
 ```powershell
-.\run-linkedin.ps1
+python run_startups.py --input "C:\path\to\startups.xlsx" --output "output\results.csv" --linkedin-delay 8 --delay 6 --jitter 4
 ```
-
-Searches LinkedIn while logged in, saves to CSV. Resumes if stopped.
-
-Pilot:
-
-```powershell
-python run_startups.py --linkedin-only --limit 10
-```
-
-### 3) Get emails via Mailmeteor
-
-Close CSV in Excel. Uses Mailmeteor on port **9222** (same as before):
-
-```powershell
-.\run-startups-emails.ps1
-```
-
-Or both steps:
-
-```powershell
-.\run-startups-full.ps1
-```
-
-## Web app (single lookup)
-
-Accounts + **Connect network** (user signs into their professional profile). Input: `Hard Name — company.com`.
-
-See **[WEB.md](WEB.md)**. **Batch ports 9222/9223 are not used by the web app** (web uses 9224 + 9300+).
-
-```powershell
-.\run-api.ps1          # terminal 1 (auth on)
-.\run-web-dev.ps1      # terminal 2 → http://localhost:5173
-# Or while batch emails run: .\run-api-dev.ps1 (no auth, read-only UI test)
-```
-
-## Notes
-
-- **Two Brave profiles:** LinkedIn (9223) and Mailmeteor (9222) — can run your normal Brave separately.
-- LinkedIn may rate-limit — use `--linkedin-delay 8` if needed.
-- Old YC pipeline still in `run.py` / `enrich_emails.py` if needed.
